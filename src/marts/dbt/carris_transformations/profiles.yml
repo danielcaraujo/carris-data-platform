@@ -1,0 +1,13 @@
+carris_transformations:
+  outputs:
+    dev:
+      dataset: applied_project_mart_grupo_1
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      location: EU
+      method: oauth
+      priority: interactive
+      project: data-eng-dev-437916
+      threads: 4
+      type: bigquery
+  target: dev
