@@ -4,7 +4,7 @@ import datetime
 
 def create_spark_session(app_name="Daily Ingest"):
     """
-    Creates a SparkSession with dynamic overwrite enabled.
+    Creates a SparkSession with dynamic partition overwrite enabled.
     """
     spark = SparkSession.builder \
         .master('local') \
@@ -13,50 +13,40 @@ def create_spark_session(app_name="Daily Ingest"):
         .getOrCreate()
     return spark
 
-def json_to_partitioned_parquet(spark, json_data, output_path: str, execution_date=None):
+def upload_parquet_to_gcs(spark, input_path: str, output_path: str, execution_date=None):
     """
-    Converts a list of dictionaries (JSON) into a DataFrame,
-    adds a partition column with the date, and saves it as Parquet
+    Reads a Parquet file, adds a partition column with the execution date,
+    and writes it to a GCS bucket in partitioned Parquet format.
+    
+    :param spark: SparkSession object
+    :param input_path: Path to the input Parquet file (local or GCS)
+    :param output_path: GCS path where the output will be stored
+    :param execution_date: Optional string in 'YYYY-MM-DD' format to use as partition
     """
     if execution_date is None:
         execution_date = datetime.date.today().isoformat()
 
-    if not json_data:
-        print("Invalid json data received")
+    try:
+        df = spark.read.parquet(input_path)
+    except Exception as e:
+        print(f"Error reading Parquet file: {e}")
         return
 
-    # Se for dict, coloca numa lista
-    if isinstance(json_data, dict):
-        json_data = [json_data]
-
-    df = spark.createDataFrame(json_data)
+    # Add a partition column with the execution date
     df = df.withColumn("partition_date", lit(execution_date))
 
+    # Write the DataFrame to GCS in partitioned Parquet format
     df.write \
         .mode("overwrite") \
         .partitionBy("partition_date") \
         .parquet(output_path)
 
-    print(f"Parquet gravado em: {output_path}/partition_date={execution_date}/")
-
+    print(f"Parquet written to: {output_path}/partition_date={execution_date}/")
 
 if __name__ == "__main__":
-    json_data = [
-        {"id": 1, "value": 10.0},
-        {"id": 2, "value": 15.5},
-        {"id": 3, "value": 7.0}
-    ]
+    # Replace with the actual input file path (local or GCS)
+    input_path = "parquet_local.parquet"
+    output_path = "gs://applied-project/grupo-1/datalake"
 
-    spark_session = create_spark_session()
-
-    json_to_partitioned_parquet(spark_session, json_data, 'gs://applied-project/grupo-1/datalake')
-
-
-"""
-Command to setup this:
-
-gcloud dataproc batches submit pyspark gs://applied-project/grupo-1/scripts/extract_to_raw.py --batch pysparkgcstest --deps-bucket=applied-p
-roject --region=europe-west1
-
-
-"""
+    spark = create_spark_session()
+    upload_parquet_to_gcs(spark, input_path, output_path)
