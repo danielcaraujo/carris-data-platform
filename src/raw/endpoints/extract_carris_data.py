@@ -1,9 +1,10 @@
 import os
+import sys
 import logging
 import json
 import zipfile
 import tempfile
-from datetime import datetime
+from datetime import datetime, date
 from typing import Dict, List, Optional, Any, Union
 import requests
 import pandas as pd
@@ -118,20 +119,6 @@ def extract_and_save_endpoint(api_client, endpoint, output_dir, partition_value=
         logger.error(f"Failed to extract {endpoint}: {str(e)}")
         return {"status": "failed", "error": str(e)}
 
-																		
-							   
-														   
-											 
-																				  
-										
-				
-											
-																	 
-																 
-																								   
-																
-				  
-
 def extract_gtfs_data(api_client: CarrisAPIClient) -> Dict[str, pd.DataFrame]:
     logger.info("Extracting GTFS data...")
     zip_content = api_client.get("/gtfs")
@@ -187,7 +174,6 @@ def extract_selected_data(
     partition_value = datetime.now().strftime("%Y%m%d")
     results = {}
 
-    # Se endpoints não especificados, faz batch completo + GTFS
     if endpoints is None:
         facility_endpoints = discover_facility_endpoints(api_client)
         endpoints = [
@@ -198,19 +184,15 @@ def extract_selected_data(
         ]
         batch_mode = True
     else:
-        # Normaliza endpoints, permite gtfs explícito
         batch_mode = False
         endpoints = [ep.lower() for ep in endpoints]
-        gtfs_included = ("gtfs" in [ep.replace("/", "") for ep in endpoints])
 
-    # Extrai todos os endpoints normais (exceto gtfs)
     for endpoint in endpoints:
         if endpoint.lower().replace("/", "") == "gtfs":
-            continue  # Não tentar extrair gtfs como endpoint "normal"
+            continue
         result = extract_and_save_endpoint(api_client, endpoint, output_dir, partition_value)
         results[endpoint] = result
 
-    # Extrai GTFS se batch, ou se gtfs está nos endpoints pedidos explicitamente
     if (batch_mode or ("gtfs" in [ep.replace("/", "") for ep in endpoints])):
         logger.info("Extracting GTFS ZIP ...")
         gtfs_results = extract_and_save_gtfs(api_client, output_dir, partition_value)
@@ -218,18 +200,91 @@ def extract_selected_data(
 
     return results
 
-# --- MAIN ---
+# ----------------- PYSPARK UPLOADS -----------------
+
+def create_spark_session(app_name="Daily Ingest"):
+    from pyspark.sql import SparkSession
+    spark = SparkSession.builder \
+        .master('local') \
+        .appName(app_name) \
+        .config("spark.sql.sources.partitionOverwriteMode", "dynamic") \
+        .getOrCreate()
+    return spark
+
+def upload_parquet_to_gcs(spark, input_path: str, output_path: str, execution_date=None):
+    from pyspark.sql.functions import lit
+    if execution_date is None:
+        execution_date = date.today().isoformat()
+    try:
+        df = spark.read.parquet(input_path)
+    except Exception as e:
+        print(f"Error reading Parquet file: {e}")
+        return
+    df = df.withColumn("partition_date", lit(execution_date))
+    df.write \
+        .mode("overwrite") \
+        .partitionBy("partition_date") \
+        .parquet(output_path)
+    print(f"Parquet written to: {output_path}/partition_date={execution_date}/")
+
+def upload_all_parquet_in_dir(spark, local_dir, gcs_dir, partition_date=None):
+    from glob import glob
+    from pyspark.sql.functions import lit
+    if partition_date is None:
+        partition_date = date.today().isoformat()
+    parquet_files = glob(os.path.join(local_dir, "*.parquet"))
+    if not parquet_files:
+        print(f"No Parquet files found in {local_dir}")
+        return
+    for parquet_file in parquet_files:
+        filename = os.path.basename(parquet_file)
+        gcs_path = os.path.join(gcs_dir, filename.replace(".parquet", ""))
+        print(f"Uploading {parquet_file} to {gcs_path} (partition_date={partition_date})")
+        df = spark.read.parquet(parquet_file)
+        df = df.withColumn("partition_date", lit(partition_date))
+        df.write \
+            .mode("overwrite") \
+            .partitionBy("partition_date") \
+            .parquet(gcs_path)
+        print(f"Parquet written to: {gcs_path}/partition_date={partition_date}/")
+
+# ----------------- MAIN -----------------
+
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Carris Data Extractor")
-    parser.add_argument(
-        "--endpoint", type=str, default=None, nargs="*",
-        help="API endpoint(s) to extract (e.g. /stops or gtfs). If omitted, extracts all and GTFS."
-    )
+    parser = argparse.ArgumentParser(description="Carris Data Extractor & Parquet Uploader")
+    parser.add_argument("--endpoint", type=str, default=None, nargs="*",
+        help="API endpoint(s) to extract (e.g. /stops or gtfs). If omitted, extracts all and GTFS.")
+    parser.add_argument("--gcs_output", action="store_true",
+        help="If set, upload all created Parquet files to GCS via PySpark (after extraction).")
+    parser.add_argument("--upload_parquet", action="store_true",
+        help="If set, upload a local Parquet file to GCS using PySpark.")
+    parser.add_argument("--input_path", type=str, default=None,
+        help="Path to local Parquet to upload (for --upload_parquet).")
+    parser.add_argument("--output_path", type=str, default=None,
+        help="GCS destination path (for --upload_parquet).")
+    parser.add_argument("--partition_date", type=str, default=None,
+        help="Partition date (YYYY-MM-DD) for upload.")
+
     args = parser.parse_args()
 
+    # Modo upload manual de ficheiro Parquet único
+    if args.upload_parquet:
+        if not args.input_path or not args.output_path:
+            print("You must provide --input_path and --output_path for --upload_parquet.")
+            exit(1)
+        spark = create_spark_session()
+        upload_parquet_to_gcs(
+            spark,
+            input_path=args.input_path,
+            output_path=args.output_path,
+            execution_date=args.partition_date
+        )
+        spark.stop()
+        exit(0)
+
+    # Modo extração Carris (com ou sem upload automático)
     if args.endpoint:
-									  
         endpoints = args.endpoint
         results = extract_selected_data(endpoints=endpoints)
         print("\n=== Extraction Summary (Selected Endpoints) ===")
@@ -240,7 +295,6 @@ if __name__ == "__main__":
                     records = info.get("records", 0)
                     print(f"{status} {endpoint}: {records} records")
                 else:
-                    # Caso especial GTFS
                     for table, tabinfo in info.items():
                         status = "✓" if tabinfo["status"] == "success" else "✗"
                         records = tabinfo.get("records", 0)
@@ -262,3 +316,19 @@ if __name__ == "__main__":
                 records = info.get("records", 0)
                 print(f"{status} {endpoint}: {records} records")
         print("\nTIP: Use --endpoint /endpoint or gtfs to re-extract only one endpoint or GTFS.")
+
+    # Upload para GCS após extração (se pedido)
+    if args.gcs_output:
+        partition_value = datetime.now().strftime("%Y%m%d")
+        local_dir = os.path.join("raw_data", f"extracted_at={partition_value}")
+        gtfs_dir = os.path.join("raw_data", "gtfs", f"extracted_at={partition_value}")
+        gcs_dir = "gs://applied-project/grupo-1/datalake"
+        gcs_dir_gtfs = "gs://applied-project/grupo-1/datalake/gtfs"
+        from pyspark.sql import SparkSession
+        spark = create_spark_session()
+        print("\nUploading main endpoints to GCS...")
+        upload_all_parquet_in_dir(spark, local_dir, gcs_dir, partition_date=partition_value)
+        print("\nUploading GTFS tables to GCS...")
+        upload_all_parquet_in_dir(spark, gtfs_dir, gcs_dir_gtfs, partition_date=partition_value)
+        spark.stop()
+        print("\nAll files uploaded to GCS.")
