@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 PROJECT_ID = 'data-eng-dev-437916'
 REGION = 'europe-west1'
 BATCH_ID = f"spark-batch-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris_data.py'
+SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
 
 CLOUD_RUN_JOB_NAME = 'nome-do-job-cloudrun' #define our cloud_run_jon_name
 
