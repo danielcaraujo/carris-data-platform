@@ -1,0 +1,37 @@
+version: 2
+models:
+- name: lines
+  description: Tabela com as linhas de transporte da Carris Metropolitana.
+  columns:
+  - name: color
+    description: "Cor associada \xE0 linha"
+  - name: district_ids
+    description: Lista de IDs dos distritos abrangidos
+  - name: facilities
+    description: "Lista de infraestruturas associadas \xE0 linha"
+  - name: id
+    description: "Identificador \xFAnico da linha"
+  - name: locality_ids
+    description: Lista de IDs das localidades abrangidas
+  - name: municipality_ids
+    description: "Lista de IDs dos munic\xEDpios abrangidos"
+  - name: pattern_ids
+    description: "IDs dos padr\xF5es associados \xE0 linha"
+  - name: region_ids
+    description: "Lista de IDs das regi\xF5es abrangidas"
+  - name: route_ids
+    description: "IDs das rotas que comp\xF5em a linha"
+  - name: short_name
+    description: Nome curto da linha
+  - name: long_name
+    description: Nome completo da linha
+  - name: stop_ids
+    description: "Lista de paragens associadas \xE0 linha"
+  - name: text_color
+    description: Cor do texto a ser usado com a cor da linha
+  - name: tts_name
+    description: Nome da linha formatado para TTS (text-to-speech)
+  - name: _extracted_at
+    description: "Timestamp da extra\xE7\xE3o dos dados"
+  - name: _endpoint
+    description: Endpoint de origem dos dados

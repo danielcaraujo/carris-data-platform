@@ -1,0 +1,27 @@
+version: 2
+models:
+- name: stop_times
+  description: "Tabela com os hor\xE1rios e sequ\xEAncia das paragens por viagem."
+  columns:
+  - name: arrival_time
+    description: Hora de chegada (HH:MM:SS)
+  - name: departure_time
+    description: Hora de partida (HH:MM:SS)
+  - name: drop_off_type
+    description: Tipo de drop-off segundo GTFS
+  - name: pickup_type
+    description: Tipo de pickup segundo GTFS
+  - name: shape_dist_traveled
+    description: "Dist\xE2ncia acumulada no percurso"
+  - name: stop_id
+    description: Identificador da paragem
+  - name: stop_sequence
+    description: "Sequ\xEAncia da paragem na viagem"
+  - name: timepoint
+    description: 1 = tempo exato, 0 = aproximado
+  - name: trip_id
+    description: Identificador da viagem
+  - name: _extracted_at
+    description: "Timestamp da extra\xE7\xE3o"
+  - name: _source_file
+    description: Nome do ficheiro de origem

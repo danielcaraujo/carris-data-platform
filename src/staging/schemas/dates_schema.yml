@@ -1,0 +1,20 @@
+version: 2
+models:
+- name: dates
+  description: "Tabela com o calend\xE1rio detalhado indicando feriados, tipo de dia\
+    \ e anota\xE7\xF5es."
+  columns:
+  - name: date
+    description: Data no formato YYYYMMDD
+  - name: day_type
+    description: "Tipo de dia (ex: 1=\xFAtil, 2=s\xE1bado, 3=domingo)"
+  - name: holiday
+    description: "Indica se \xE9 feriado (1=sim, 0=n\xE3o)"
+  - name: notes
+    description: 'Notas descritivas sobre o dia (ex: nome do feriado)'
+  - name: period
+    description: "Per\xEDodo escolar ou sazonal associado"
+  - name: _extracted_at
+    description: "Timestamp da extra\xE7\xE3o dos dados"
+  - name: _source_file
+    description: Nome do ficheiro de origem dos dados

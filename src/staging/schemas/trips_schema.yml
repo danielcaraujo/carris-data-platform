@@ -1,0 +1,25 @@
+version: 2
+models:
+- name: trips
+  description: Tabela com as viagens planeadas segundo o modelo GTFS.
+  columns:
+  - name: calendar_desc
+    description: "Descri\xE7\xE3o do calend\xE1rio associado (pode estar nulo)"
+  - name: direction_id
+    description: "Dire\xE7\xE3o da viagem (0 = ida, 1 = volta)"
+  - name: pattern_id
+    description: "Identificador do padr\xE3o de viagem"
+  - name: route_id
+    description: Identificador da rota associada
+  - name: service_id
+    description: "Identificador do servi\xE7o (hor\xE1rio/calend\xE1rio)"
+  - name: shape_id
+    description: Identificador do percurso da viagem
+  - name: trip_headsign
+    description: Destino final apresentado ao passageiro
+  - name: trip_id
+    description: "Identificador \xFAnico da viagem"
+  - name: _extracted_at
+    description: "Timestamp da extra\xE7\xE3o dos dados"
+  - name: _source_file
+    description: Nome do ficheiro de origem dos dados

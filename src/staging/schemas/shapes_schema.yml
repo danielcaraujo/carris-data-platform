@@ -1,0 +1,20 @@
+version: 2
+models:
+- name: shapes
+  description: "Tabela com os pontos geogr\xE1ficos que definem os trajetos das viagens\
+    \ (shape) no GTFS."
+  columns:
+  - name: shape_dist_traveled
+    description: "Dist\xE2ncia acumulada desde o in\xEDcio do percurso"
+  - name: shape_id
+    description: Identificador do percurso (shape)
+  - name: shape_pt_lat
+    description: Latitude do ponto do percurso
+  - name: shape_pt_lon
+    description: Longitude do ponto do percurso
+  - name: shape_pt_sequence
+    description: Ordem sequencial do ponto no percurso
+  - name: _extracted_at
+    description: "Timestamp da extra\xE7\xE3o dos dados"
+  - name: _source_file
+    description: Nome do ficheiro de origem dos dados

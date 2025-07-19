@@ -1,0 +1,17 @@
+version: 2
+models:
+- name: stops
+  description: "Tabela com informa\xE7\xF5es detalhadas sobre as paragens."
+  columns:
+  - name: stop_id
+    description: "Identificador \xFAnico da paragem"
+  - name: stop_name
+    description: Nome da paragem original
+  - name: stop_name_new
+    description: Nome da paragem padronizado
+  - name: car_parking
+    description: "Indicador de parque de estacionamento pr\xF3ximo"
+  - name: _extracted_at
+    description: "Timestamp da extra\xE7\xE3o"
+  - name: _source_file
+    description: Nome do ficheiro de origem
