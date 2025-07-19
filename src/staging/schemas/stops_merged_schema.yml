@@ -1,0 +1,182 @@
+version: 2
+models:
+- name: stops
+  description: Tabela unificada de paragens combinando dados da API (/stops) e da
+    GTFS (stops.txt).
+  columns:
+  - name: district_id
+    description: ''
+  - name: facilities
+    description: ''
+  - name: id
+    description: ''
+  - name: lat
+    description: ''
+  - name: lon
+    description: ''
+  - name: tts_name
+    description: ''
+  - name: wheelchair_boarding
+    description: ''
+  - name: _extracted_at
+    description: ''
+  - name: _endpoint
+    description: ''
+  - name: stop_id
+    description: ''
+  - name: stop_name
+    description: ''
+  - name: stop_name_new
+    description: ''
+  - name: stop_short_name
+    description: ''
+  - name: stop_lat
+    description: ''
+  - name: stop_lon
+    description: ''
+  - name: operational_status
+    description: ''
+  - name: areas
+    description: ''
+  - name: region_id
+    description: ''
+  - name: region_name
+    description: ''
+  - name: district_name
+    description: ''
+  - name: municipality_id
+    description: ''
+  - name: municipality_name
+    description: ''
+  - name: parish_id
+    description: ''
+  - name: parish_name
+    description: ''
+  - name: locality
+    description: ''
+  - name: jurisdiction
+    description: ''
+  - name: stop_code
+    description: ''
+  - name: tts_stop_name
+    description: ''
+  - name: platform_code
+    description: ''
+  - name: parent_station
+    description: ''
+  - name: location_type
+    description: ''
+  - name: stop_url
+    description: ''
+  - name: has_pole
+    description: ''
+  - name: has_cover
+    description: ''
+  - name: has_shelter
+    description: ''
+  - name: shelter_code
+    description: ''
+  - name: shelter_maintainer
+    description: ''
+  - name: has_mupi
+    description: ''
+  - name: has_bench
+    description: ''
+  - name: has_trash_bin
+    description: ''
+  - name: has_lighting
+    description: ''
+  - name: has_electricity
+    description: ''
+  - name: docking_bay_type
+    description: ''
+  - name: last_infrastructure_maintenance
+    description: ''
+  - name: last_infrastructure_check
+    description: ''
+  - name: has_flag
+    description: ''
+  - name: flag_maintainer
+    description: ''
+  - name: has_pip_static
+    description: ''
+  - name: has_pip_audio
+    description: ''
+  - name: pip_audio_code
+    description: ''
+  - name: has_pip_realtime
+    description: ''
+  - name: pip_realtime_code
+    description: ''
+  - name: has_h2oa_signage
+    description: ''
+  - name: has_schedules
+    description: ''
+  - name: has_tactile_schedules
+    description: ''
+  - name: has_network_map
+    description: ''
+  - name: last_schedules_maintenance
+    description: ''
+  - name: last_schedules_check
+    description: ''
+  - name: last_flag_maintenance
+    description: ''
+  - name: last_flag_check
+    description: ''
+  - name: has_sidewalk
+    description: ''
+  - name: sidewalk_type
+    description: ''
+  - name: has_crossing
+    description: ''
+  - name: has_flat_access
+    description: ''
+  - name: has_wide_access
+    description: ''
+  - name: has_tactile_access
+    description: ''
+  - name: has_abusive_parking
+    description: ''
+  - name: last_accessibility_maintenance
+    description: ''
+  - name: last_accessibility_check
+    description: ''
+  - name: near_health_clinic
+    description: ''
+  - name: near_hospital
+    description: ''
+  - name: near_university
+    description: ''
+  - name: near_school
+    description: ''
+  - name: near_police_station
+    description: ''
+  - name: near_fire_station
+    description: ''
+  - name: near_shopping
+    description: ''
+  - name: near_historic_building
+    description: ''
+  - name: near_transit_office
+    description: ''
+  - name: near_beach
+    description: ''
+  - name: subway
+    description: ''
+  - name: light_rail
+    description: ''
+  - name: train
+    description: ''
+  - name: boat
+    description: ''
+  - name: airport
+    description: ''
+  - name: bike_sharing
+    description: ''
+  - name: bike_parking
+    description: ''
+  - name: car_parking
+    description: ''
+  - name: _source_file
+    description: ''

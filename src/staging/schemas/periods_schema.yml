@@ -1,0 +1,14 @@
+version: 2
+models:
+- name: periods
+  description: "Tabela com os diferentes per\xEDodos operacionais usados no calend\xE1\
+    rio GTFS."
+  columns:
+  - name: period_id
+    description: "Identificador \xFAnico do per\xEDodo"
+  - name: period_name
+    description: "Nome descritivo do per\xEDodo (ex: Per\xEDodo Escolar, Ver\xE3o)"
+  - name: _extracted_at
+    description: "Timestamp da extra\xE7\xE3o dos dados"
+  - name: _source_file
+    description: Nome do ficheiro de origem dos dados
