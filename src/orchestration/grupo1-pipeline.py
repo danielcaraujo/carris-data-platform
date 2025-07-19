@@ -27,7 +27,7 @@ CLOUD_RUN_JOB_NAME = 'nome-do-job-cloudrun' #define our cloud_run_jon_name
 
 with models.DAG(
     dag_id='grupo1-pipeline',
-    schedule_interval=None,
+    schedule_interval="@daily",
     start_date=days_ago(1),
     catchup=False,
     default_args={
@@ -35,7 +35,7 @@ with models.DAG(
         'depends_on_past': False,
         'email_on_failure': False,
         'retries': 1,
-        'retry_delay': timedelta(minutes=1),
+        'retry_delay': timedelta(minutes=1)
     },
     tags=['dataproc', 'serverless', 'spark'],
 ) as dag:
