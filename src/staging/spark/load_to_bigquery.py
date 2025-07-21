@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
+from pyspark.sql import functions as F
 
 class BucketToBigQueryETL:
     """ETL pipeline class for copying data from GCS bucket to BigQuery staging tables"""
@@ -40,7 +41,8 @@ class BucketToBigQueryETL:
         
         # Read data from GCS bucket
         df = self.spark.read.parquet(source_path)
-        
+        df = df.withColumn("ingested_at", F.current_timestamp())
+
         # Write to BigQuery
         df.write \
             .format("bigquery") \
