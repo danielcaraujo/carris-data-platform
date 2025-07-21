@@ -1,6 +1,7 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
 from pyspark.conf import SparkConf
 from pyspark.sql import functions as F
+
 
 class BucketToBigQueryETL:
     """ETL pipeline class for copying data from GCS bucket to BigQuery staging tables"""
@@ -20,6 +21,25 @@ class BucketToBigQueryETL:
             .appName("BucketToBigQueryETL") \
             .config(conf=conf) \
             .getOrCreate()
+
+    def process_source(self, table_name, table_source) -> DataFrame:
+        """
+        Process a single source for a table from bucket to BigQuery staging
+        
+        Args:
+            table_name: Name of the table to process
+            table_source: Source type (endpoint, gtfs)
+            write_mode: BigQuery write mode (overwrite, append)
+        """
+        if table_source == 'endpoint':
+            source_path = f"gs://{self.bucket_name}/{table_name}/*"
+        elif table_source == 'gtfs':
+            source_path = f"gs://{self.bucket_name}/gtfs/{table_name}/*"
+        else:
+            raise ValueError(f"Unknown source type: {table_source}")
+        
+        # Read data from GCS bucket
+        return self.spark.read.parquet(source_path)
     
     def process_table(self, table_name, table_sources, write_mode="overwrite"):
         """
@@ -30,19 +50,19 @@ class BucketToBigQueryETL:
             table_sorces: An array of sources for the table (endpoint, gtfs)
             write_mode: BigQuery write mode (overwrite, append)
         """
-        table_source = table_sources[0]
-
-        if table_source == 'endpoint':
-          source_path = f"gs://{self.bucket_name}/{table_name}/*"
-        elif table_source == 'gtfs':
-          source_path = f"gs://{self.bucket_name}/gtfs/{table_name}/*"
+        dfs = list(map(lambda source: self.process_source(table_name, source), table_sources))
         
+        # Combine all DataFrames into one
+        df = dfs[0]
+        for additional_df in dfs[1:]:
+          additional_df_new_cols = additional_df.select([col for col in additional_df.columns if col not in df.columns])
+          df = df.join(additional_df_new_cols, df.id == additional_df_new_cols.stop_id, "inner")
+
+
+        # Add ingestion timestamp          
+        df = df.withColumn("ingested_at", F.current_timestamp())
         destination_table = f"staging_{table_name}"
         
-        # Read data from GCS bucket
-        df = self.spark.read.parquet(source_path)
-        df = df.withColumn("ingested_at", F.current_timestamp())
-
         # Write to BigQuery
         df.write \
             .format("bigquery") \
@@ -100,10 +120,16 @@ tables = [{
   "name":'stop_times',
   "sources": ['gtfs'],
 }, {
+  "name":'trips',
+  "sources": ['gtfs'],
+}, {
   "name":'periods',
   "sources": ['gtfs'],
 }, {
   "name":'dates',
+  "sources": ['gtfs'],
+}, {
+  "name":'calendar_dates',
   "sources": ['gtfs'],
 }, {
   "name":'shapes',
