@@ -3,8 +3,8 @@ from pyspark.conf import SparkConf
 from pyspark.sql import functions as F
 
 
-class BucketToBigQueryETL:
-    """ETL pipeline class for copying data from GCS bucket to BigQuery staging tables"""
+class BucketToBigQueryTask:
+    """Pipeline class for copying data from GCS bucket to BigQuery staging tables"""
     
     def __init__(self, project_id, dataset_id, bucket_name):
         self.project_id = project_id
@@ -18,7 +18,7 @@ class BucketToBigQueryETL:
         conf.set("spark.jars.packages", "com.google.cloud.spark:spark-bigquery-with-dependencies_2.12:0.32.2")
         
         return SparkSession.builder \
-            .appName("BucketToBigQueryETL") \
+            .appName("BucketToBigQueryTask") \
             .config(conf=conf) \
             .getOrCreate()
 
@@ -29,7 +29,6 @@ class BucketToBigQueryETL:
         Args:
             table_name: Name of the table to process
             table_source: Source type (endpoint, gtfs)
-            write_mode: BigQuery write mode (overwrite, append)
         """
         if table_source == 'endpoint':
             source_path = f"gs://{self.bucket_name}/{table_name}/*"
@@ -89,7 +88,7 @@ class BucketToBigQueryETL:
 
 # Usage example for the class-based approach:
 """
-etl = BucketToBigQueryETL(
+task = BucketToBigQueryTask(
     project_id="your-project-id",
     dataset_id="your-dataset-id", 
     bucket_name="your-bucket-name"
@@ -102,9 +101,9 @@ tables = [{
   "name":'stops',
   "sources": ['endpoint', 'gtfs'],
 }]
-etl.run_pipeline(tables, write_mode="overwrite")
+task.run_pipeline(tables, write_mode="overwrite")
 """
-etl = BucketToBigQueryETL(
+task = BucketToBigQueryTask(
     project_id="data-eng-dev-437916",
     dataset_id="applied_project_staging_grupo_1", 
     bucket_name="applied-project/grupo-1/raw"
@@ -139,4 +138,4 @@ tables = [{
   "sources": ['gtfs'],
 }]
 
-etl.run_pipeline(tables, write_mode="overwrite")
+task.run_pipeline(tables, write_mode="overwrite")
