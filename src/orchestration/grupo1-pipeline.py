@@ -9,7 +9,8 @@ from googleapiclient.discovery import build
 PROJECT_ID = 'data-eng-dev-437916'
 REGION = 'europe-west1'
 BATCH_ID = f"spark-batch-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
+RAW_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
+STAGING_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/load_to_bigquery.py'
 
 CLOUD_RUN_JOB_NAME = 'nome-do-job-cloudrun' #define our cloud_run_jon_name
 
@@ -24,6 +25,17 @@ CLOUD_RUN_JOB_NAME = 'nome-do-job-cloudrun' #define our cloud_run_jon_name
 #     )
 #     response = request.execute()
 #     print(f"Cloud Run Job triggered: {response}")
+
+
+def create_batch_config(script_path: str) -> dict:
+    return {
+        "pyspark_batch": {
+            "main_python_file_uri": script_path,
+        },
+        "runtime_config": {
+            "version": "2.1"
+        }
+    }
 
 with models.DAG(
     dag_id='grupo1-pipeline',
@@ -40,20 +52,23 @@ with models.DAG(
     tags=['dataproc', 'serverless', 'spark'],
 ) as dag:
 
-    spark_serverless_job = DataprocCreateBatchOperator(
-        task_id='executa_spark_serverless',
+    raw_layer_gcs_bucket = DataprocCreateBatchOperator(
+        task_id='raw_layer_gcs_bucket',
         project_id=PROJECT_ID,
         region=REGION,
-        batch_id=BATCH_ID,
-        batch={
-            "pyspark_batch": {
-                "main_python_file_uri": SCRIPT_PATH,
-            },
-            "runtime_config": {
-                "version": "2.1"
-            }
-        }
+        batch_id=f"spark-raw-{uuid4().hex[:8]}",
+        batch=create_batch_config(RAW_SCRIPT_PATH),
     )
+
+    staging_layer_bigquery = DataprocCreateBatchOperator(
+        task_id='staging_layer_bigquery',
+        project_id=PROJECT_ID,
+        region=REGION,
+        batch_id=f"spark-staging-{uuid4().hex[:8]}",
+        batch=create_batch_config(STAGING_SCRIPT_PATH),
+    )
+
+    raw_layer_gcs_bucket >> staging_layer_bigquery
 
     # trigger_job = PythonOperator(
     #     task_id='trigger_cloud_run_job',
@@ -65,4 +80,4 @@ with models.DAG(
     #     }
     # )
 
-    spark_serverless_job
+    raw_layer_gcs_bucket >> staging_layer_bigquery
