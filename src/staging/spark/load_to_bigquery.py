@@ -30,9 +30,9 @@ class BucketToBigQueryTask:
             table_name: Name of the table to process
             table_source: Source type (endpoint, gtfs)
         """
-        if table_source == 'endpoint':
+        if table_source == "endpoint":
             source_path = f"gs://{self.bucket_name}/{table_name}/*"
-        elif table_source == 'gtfs':
+        elif table_source == "gtfs":
             source_path = f"gs://{self.bucket_name}/gtfs/{table_name}/*"
         else:
             raise ValueError(f"Unknown source type: {table_source}")
@@ -40,24 +40,15 @@ class BucketToBigQueryTask:
         # Read data from GCS bucket
         return self.spark.read.parquet(source_path)
     
-    def process_table(self, table_name, table_sources, write_mode="overwrite"):
-        """
-        Process a single table from bucket to BigQuery staging
-        
+    def write_to_bigquery(self, df: DataFrame, table_name: str, write_mode: str = "overwrite"):
+        """ 
+        Write DataFrame to BigQuery staging table 
         Args:
-            table_name: Name of the table to process
-            table_sorces: An array of sources for the table (endpoint, gtfs)
+            df: DataFrame to write
+            table_name: Name of the BigQuery staging table
             write_mode: BigQuery write mode (overwrite, append)
-        """
-        dfs = list(map(lambda source: self.process_source(table_name, source), table_sources))
+        """  
         
-        # Combine all DataFrames into one
-        df = dfs[0]
-        for additional_df in dfs[1:]:
-          additional_df_new_cols = additional_df.select([col for col in additional_df.columns if col not in df.columns])
-          df = df.join(additional_df_new_cols, df.id == additional_df_new_cols.stop_id, "inner")
-
-
         # Add ingestion timestamp          
         df = df.withColumn("ingested_at", F.current_timestamp())
         destination_table = f"staging_{table_name}"
@@ -71,12 +62,30 @@ class BucketToBigQueryTask:
             .save()
         
         print(f"Successfully processed {table_name} -> {destination_table}")
+        
+    def process_table(self, table_name, table_sources, write_mode="overwrite"):
+        """
+        Process a single table from bucket to BigQuery staging
+        
+        Args:
+            table_name: Name of the table to process
+            table_sorces: An array of sources for the table (endpoint, gtfs)
+            write_mode: BigQuery write mode (overwrite, append)
+        """
+        source_dfs = list(map(lambda source: self.process_source(table_name, source), table_sources))
+        
+        if len(source_dfs) == 1:
+            self.write_to_bigquery(source_dfs[0], table_name, write_mode)
+        else:
+          # Write each source DataFrame to its own BigQuery table
+          for (df, table_source) in zip(source_dfs, table_sources):
+                self.write_to_bigquery(df, f"{table_source}_{table_name}", write_mode)
     
-    def run_pipeline(self, tables, write_mode="overwrite"):
-        """Run the complete ETL pipeline for all tables"""
+    def run(self, tables, write_mode="overwrite"):
+        """Run the complete task (for all tables)"""
         try:
             for table in tables:
-                self.process_table(table['name'], table['sources'], write_mode)
+                self.process_table(table["name"], table["sources"], write_mode)
             print("Pipeline completed successfully!")
         
         except Exception as e:
@@ -95,13 +104,13 @@ task = BucketToBigQueryTask(
 )
 
 tables = [{
-  "name":'lines',
-  "sources": ['endpoint'],
+  "name":"lines",
+  "sources": ["endpoint"],
 }, {  
-  "name":'stops',
-  "sources": ['endpoint', 'gtfs'],
+  "name":"stops",
+  "sources": ["endpoint", "gtfs"],
 }]
-task.run_pipeline(tables, write_mode="overwrite")
+task.run(tables, write_mode="overwrite")
 """
 task = BucketToBigQueryTask(
     project_id="data-eng-dev-437916",
@@ -110,32 +119,35 @@ task = BucketToBigQueryTask(
 )
 
 tables = [{
-  "name":'lines',
-  "sources": ['endpoint'],
+  "name": "lines",
+  "sources": ["endpoint"],
 }, {  
-  "name":'stops',
-  "sources": ['endpoint', 'gtfs'],
+  "name": "routes",
+  "sources": ["endpoint", "gtfs"],
+}, {  
+  "name": "stops",
+  "sources": ["endpoint", "gtfs"],
 }, {
-  "name":'stop_times',
-  "sources": ['gtfs'],
+  "name": "stop_times",
+  "sources": ["gtfs"],
 }, {
-  "name":'trips',
-  "sources": ['gtfs'],
+  "name": "trips",
+  "sources": ["gtfs"],
 }, {
-  "name":'periods',
-  "sources": ['gtfs'],
+  "name": "periods",
+  "sources": ["gtfs"],
 }, {
-  "name":'dates',
-  "sources": ['gtfs'],
+  "name": "dates",
+  "sources": ["gtfs"],
 }, {
-  "name":'calendar_dates',
-  "sources": ['gtfs'],
+  "name": "calendar_dates",
+  "sources": ["gtfs"],
 }, {
-  "name":'shapes',
-  "sources": ['gtfs'],
+  "name": "shapes",
+  "sources": ["gtfs"],
 }, {
-  "name":'municipalities',
-  "sources": ['gtfs'],
+  "name": "municipalities",
+  "sources": ["gtfs"],
 }]
 
-task.run_pipeline(tables, write_mode="overwrite")
+task.run(tables, write_mode="overwrite")
