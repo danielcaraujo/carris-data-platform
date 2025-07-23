@@ -1,0 +1,30 @@
+version: 1
+
+sources:
+  - name: carris_transformations
+    database: "{{ target.database }}"
+    schema: applied_project_staging_grupo_1
+    tables:
+      - name: staging_trips
+        description: SOMETHING.
+        columns:
+          - name: calendar_desc
+            description: Reward given for completing an offer.
+          - name: direction_id
+            description: A list of channels through which the offer was received.
+          - name: pattern_id
+            description: Minimum required spend to complete the offer.
+          - name: route_id
+            description: Time in minutes for the offer to be open.
+          - name: service_id
+            description: Type of offer.
+          - name: shape_id
+            description: Unique identifier for each offer.
+          - name: trip_headsign
+            description: Unique identifier for each offer.
+          - name: trip_id
+            description: Unique identifier for each offer.
+          - name: _source_file
+            description: Unique identifier for each offer.
+          - name: ingested_at
+            description: Unique identifier for each offer.

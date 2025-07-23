@@ -1,23 +1,23 @@
 carris_transformations:
+  target: dev
   outputs:
     prod:
       dataset: applied_project_mart_grupo_1
       job_execution_timeout_seconds: 300
       job_retries: 1
-      location: EU
+      location: europe-west1
       method: oauth
       priority: interactive
-      project: data-eng-dev-437916
+      project: "{{ env_var('PROJECT_ID') }}"
       threads: 4
       type: bigquery
     dev:
       dataset: applied_project_mart_grupo_1_dev
       job_execution_timeout_seconds: 300
       job_retries: 1
-      location: EU
+      location: europe-west1
       method: oauth
       priority: interactive
-      project: data-eng-dev-437916
+      project: "{{ env_var('PROJECT_ID') }}"
       threads: 4
       type: bigquery
-  target: dev

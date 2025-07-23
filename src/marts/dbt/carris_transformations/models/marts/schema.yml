@@ -1,0 +1,55 @@
+
+version: 1
+
+models:
+  - name: fact_trip_schedule
+    config:
+      contract:
+        enforced: true
+    description: >
+      Fact table about trips.
+    columns:
+      - name: trip_key
+        description: Unique key identifier for each trip.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: trip_id
+        description: Unique identifier for each trip.
+        data_type: string
+      - name: route_id
+        description: Unique identifier for each route of a trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: pattern_id
+        description: Unique identifier for each pattern.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: shape_id
+        description: Unique identifier for each shape.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Unique identifier for each service.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: direction_id
+        description: Unique identifier for each direction.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: trip_headsign
+        description: String that represents the headsign of a trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was ingested.
+        data_type: timestamp
+        data_tests:
+          - not_null
