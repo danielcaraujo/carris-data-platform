@@ -93,6 +93,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     spark = SparkSession.builder.appName("CarrisSparkDirectGCS").getOrCreate()
+    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
     if args.endpoint:
         ep = args.endpoint.strip().lower()
