@@ -56,7 +56,7 @@ with models.DAG(
         task_id='raw_layer_gcs_bucket',
         project_id=PROJECT_ID,
         region=REGION,
-        batch_id=f"spark-raw-{uuid4().hex[:8]}",
+        batch_id=f"spark-raw-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         batch=create_batch_config(RAW_SCRIPT_PATH),
     )
 
@@ -64,7 +64,7 @@ with models.DAG(
         task_id='staging_layer_bigquery',
         project_id=PROJECT_ID,
         region=REGION,
-        batch_id=f"spark-staging-{uuid4().hex[:8]}",
+        batch_id=f"spark-staging-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         batch=create_batch_config(STAGING_SCRIPT_PATH),
     )
 
