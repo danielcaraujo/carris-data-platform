@@ -3,6 +3,23 @@ from pyspark.conf import SparkConf
 from pyspark.sql import functions as F
 
 
+def clean_dataframe(df):
+    # Limpar floats/doubles (null ou NaN para 0)
+    for name, dtype in df.dtypes:
+        if dtype in ['float', 'double']:
+            df = df.withColumn(
+                name,
+                F.when(F.isnan(F.col(name)) | F.col(name).isNull(), F.lit(0)).otherwise(F.col(name))
+            )
+    # Limpar strings (null para "NaN")
+    for name, dtype in df.dtypes:
+        if dtype == 'string':
+            df = df.withColumn(
+                name,
+                F.when(F.col(name).isNull(), F.lit("NaN")).otherwise(F.col(name))
+            )
+    return df
+
 class BucketToBigQueryTask:
     """Pipeline class for copying data from GCS bucket to BigQuery staging tables"""
     
@@ -51,6 +68,11 @@ class BucketToBigQueryTask:
         
         # Add ingestion timestamp          
         df = df.withColumn("ingested_at", F.current_timestamp())
+        
+        df = clean_dataframe(df)
+        
+        df = df.dropDuplicates()  
+        
         destination_table = f"staging_{table_name}"
         
         # Write to BigQuery
@@ -58,6 +80,9 @@ class BucketToBigQueryTask:
             .format("bigquery") \
             .option("table", f"{self.project_id}.{self.dataset_id}.{destination_table}") \
             .option("writeMethod", "direct") \
+            .option("allowSchemaUpdates", "true") \
+            .option("createDisposition", "CREATE_IF_NEEDED") \
+            .option("writeDisposition", "WRITE_TRUNCATE") \
             .mode(write_mode) \
             .save()
         

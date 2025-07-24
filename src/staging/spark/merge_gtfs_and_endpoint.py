@@ -39,12 +39,15 @@ class MergeGTFSAndEndpointTablesTask:
             .format("bigquery") \
             .option("table", f"{self.project_id}.{self.dataset_id}.{destination_table}") \
             .option("writeMethod", "direct") \
+            .option("allowSchemaUpdates", "true") \
+            .option("createDisposition", "CREATE_IF_NEEDED") \
+            .option("writeDisposition", "WRITE_TRUNCATE") \
             .mode(write_mode) \
             .save()
         
         print(f"Successfully merged {table_name} -> {destination_table}")
         
-    def process_table(self, table_name, write_mode="overwrite"):
+    def process_table(self, table_name, columns_to_exclude, write_mode="overwrite"):
         gtfs_df = self.spark.read.format("bigquery") \
             .option("table", f"{self.project_id}.{self.dataset_id}.staging_gtfs_{table_name}") \
             .load()
@@ -55,13 +58,17 @@ class MergeGTFSAndEndpointTablesTask:
         gtfs_df_new_cols = gtfs_df.select([col for col in gtfs_df.columns if col not in endpoint_df.columns])
         merged_df = endpoint_df.join(gtfs_df_new_cols, endpoint_df.id == gtfs_df_new_cols[f"{table_name[:-1]}_id"], "inner")
 
+        # Exclude specified columns if provided
+        if columns_to_exclude:
+            merged_df = merged_df.drop(*columns_to_exclude)
+
         self.write_to_bigquery(merged_df, table_name, write_mode)
     
-    def run(self, table_names, write_mode="overwrite"):
+    def run(self, tables, write_mode="overwrite"):
         """Run the complete task (for all tables)"""
         try:
-            for table_name in table_names:
-                self.process_table(table_name, write_mode)
+            for table in tables:
+                self.process_table(table["name"], table["columns_to_exclude"], write_mode)
             print("Pipeline completed successfully!")                        
         
         except Exception as e:
@@ -78,7 +85,13 @@ task = MergeGTFSAndEndpointTablesTask(
     dataset_id="your-dataset-id", 
 )
 
-table_names = ["routes", "stops"]  
+tables = [{
+  "name": "routes",
+  "columns_to_exclude": []
+}, {
+  "name": "stops",
+  "columns_to_exclude": []
+}]
 task.run(tables, write_mode="overwrite")
 """
 task = MergeGTFSAndEndpointTablesTask(
@@ -86,6 +99,12 @@ task = MergeGTFSAndEndpointTablesTask(
     dataset_id="applied_project_staging_grupo_1", 
 )
 
-table_names = ["routes", "stops"]  
+tables = [{
+  "name": "routes",
+  "columns_to_exclude": ["color", "text_color", "id", "short_name", "long_name"]
+}, {
+  "name": "stops",
+  "columns_to_exclude": []
+}]  
 
-task.run(table_names, write_mode="overwrite")
+task.run(tables, write_mode="overwrite")
