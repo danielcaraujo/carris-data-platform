@@ -1,6 +1,5 @@
 {% set surrogate_key_columns = [
-    "t.trip_id",
-    "t.route_id"
+    "t.trip_id"
 ] %}
 
 with

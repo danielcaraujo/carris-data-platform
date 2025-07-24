@@ -44,7 +44,7 @@ models:
         data_tests:
           - not_null
       - name: trip_headsign
-        description: String that represents the headsign of a trip.
+        description: Text displayed on the trip.
         data_type: string
         data_tests:
           - not_null
