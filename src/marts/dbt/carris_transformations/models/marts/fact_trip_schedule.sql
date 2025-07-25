@@ -1,5 +1,6 @@
 {% set surrogate_key_columns = [
-    "t.trip_id"
+    "t.trip_id",
+    "cs.date"
 ] %}
 
 with
@@ -9,12 +10,12 @@ with
     ),
 
     calendar_service as (
-        select *
-        FROM {{ source ('carris_transformations','staging_calendar_dates') }}
+        select distinct cs.date, cs.service_id
+        FROM {{ source ('carris_transformations','staging_calendar_dates') }} cs
     ),
 
     final as (
-        select
+        select distinct 
             {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }}
             as trip_key,
             cs.date AS trip_date,
