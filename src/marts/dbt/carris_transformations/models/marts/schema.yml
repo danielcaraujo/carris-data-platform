@@ -15,9 +15,16 @@ models:
         data_tests:
           - not_null
           - unique
+      - name: trip_date
+        description: The specific date of the service exception in YYYYMMDD format.
+        data_type: integer
+        data_tests:
+          - not_null
       - name: trip_id
         description: Unique identifier for each trip.
         data_type: string
+        data_tests:
+          - not_null
       - name: route_id
         description: Unique identifier for each route of a trip.
         data_type: string
@@ -45,6 +52,34 @@ models:
           - not_null
       - name: trip_headsign
         description: Text displayed on the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was ingested.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: dim_calendar_service
+    config:
+      contract:
+        enforced: true
+    description: >
+      Contains calendar exceptions and special service dates for each service_id as defined in the GTFS feed.
+    columns:
+      - name: calendar_service_key
+        description: Unique key identifier for each trip.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: date
+        description: The specific date of the service exception in YYYYMMDD format.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Unique identifier for each service.
         data_type: string
         data_tests:
           - not_null
