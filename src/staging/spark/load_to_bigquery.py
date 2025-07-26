@@ -2,22 +2,268 @@ from pyspark.sql import SparkSession, DataFrame
 from pyspark.conf import SparkConf
 from pyspark.sql import functions as F
 
+from pyspark.sql.types import StructType, StructField, StringType, LongType, DoubleType, BooleanType, TimestampType
+
+schemas = {
+    "lines": StructType([
+        StructField("color", StringType(), True),
+        StructField("district_ids", StringType(), True),
+        StructField("facilities", StringType(), True),
+        StructField("id", StringType(), True),
+        StructField("locality_ids", StringType(), True),
+        StructField("long_name", StringType(), True),
+        StructField("municipality_ids", StringType(), True),
+        StructField("pattern_ids", StringType(), True),
+        StructField("region_ids", StringType(), True),
+        StructField("route_ids", StringType(), True),
+        StructField("short_name", StringType(), True),
+        StructField("stop_ids", StringType(), True),
+        StructField("text_color", StringType(), True),
+        StructField("tts_name", StringType(), True),
+        StructField("_endpoint", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "endpoint_routes": StructType([
+        StructField("color", StringType(), True),
+        StructField("district_ids", StringType(), True),
+        StructField("facilities", StringType(), True),
+        StructField("id", StringType(), True),
+        StructField("line_id", StringType(), True),
+        StructField("locality_ids", StringType(), True),
+        StructField("long_name", StringType(), True),
+        StructField("municipality_ids", StringType(), True),
+        StructField("pattern_ids", StringType(), True),
+        StructField("region_ids", StringType(), True),
+        StructField("short_name", StringType(), True),
+        StructField("stop_ids", StringType(), True),
+        StructField("text_color", StringType(), True),
+        StructField("tts_name", StringType(), True),
+        StructField("_endpoint", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "gtfs_routes": StructType([
+        StructField("agency_id", StringType(), True),
+        StructField("circular", LongType(), True),
+        StructField("line_id", LongType(), True),
+        StructField("line_long_name", StringType(), True),
+        StructField("line_short_name", StringType(), True),
+        StructField("line_type", DoubleType(), True),
+        StructField("path_type", LongType(), True),
+        StructField("route_color", StringType(), True),
+        StructField("route_id", StringType(), True),
+        StructField("route_long_name", StringType(), True),
+        StructField("route_short_name", StringType(), True),
+        StructField("route_text_color", StringType(), True),
+        StructField("route_type", LongType(), True),
+        StructField("school", DoubleType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "endpoint_stops": StructType([
+        StructField("district_id", StringType(), True),
+        StructField("facilities", StringType(), True),
+        StructField("id", StringType(), True),
+        StructField("lat", DoubleType(), True),
+        StructField("line_ids", StringType(), True),
+        StructField("locality_id", StringType(), True),
+        StructField("lon", DoubleType(), True),
+        StructField("long_name", StringType(), True),
+        StructField("municipality_id", StringType(), True),
+        StructField("operational_status", StringType(), True),
+        StructField("pattern_ids", StringType(), True),
+        StructField("region_id", StringType(), True),
+        StructField("route_ids", StringType(), True),
+        StructField("short_name", StringType(), True),
+        StructField("tts_name", StringType(), True),
+        StructField("wheelchair_boarding", BooleanType(), True),
+        StructField("_endpoint", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "gtfs_stops": StructType([
+        StructField("stop_id", LongType(), True),
+        StructField("stop_name", StringType(), True),
+        StructField("stop_name_new", StringType(), True),
+        StructField("stop_short_name", StringType(), True),
+        StructField("stop_lat", DoubleType(), True),
+        StructField("stop_lon", DoubleType(), True),
+        StructField("operational_status", StringType(), True),
+        StructField("areas", StringType(), True),
+        StructField("region_id", StringType(), True),
+        StructField("region_name", StringType(), True),
+        StructField("district_id", LongType(), True),
+        StructField("district_name", StringType(), True),
+        StructField("municipality_id", LongType(), True),
+        StructField("municipality_name", StringType(), True),
+        StructField("parish_id", DoubleType(), True),
+        StructField("parish_name", DoubleType(), True),
+        StructField("locality", StringType(), True),
+        StructField("jurisdiction", DoubleType(), True),
+        StructField("stop_code", LongType(), True),
+        StructField("tts_stop_name", StringType(), True),
+        StructField("platform_code", DoubleType(), True),
+        StructField("parent_station", DoubleType(), True),
+        StructField("location_type", LongType(), True),
+        StructField("stop_url", StringType(), True),
+        StructField("has_pole", StringType(), True),
+        StructField("has_cover", StringType(), True),
+        StructField("has_shelter", StringType(), True),
+        StructField("shelter_code", StringType(), True),
+        StructField("shelter_maintainer", StringType(), True),
+        StructField("has_mupi", StringType(), True),
+        StructField("has_bench", StringType(), True),
+        StructField("has_trash_bin", StringType(), True),
+        StructField("has_lighting", StringType(), True),
+        StructField("has_electricity", StringType(), True),
+        StructField("docking_bay_type", StringType(), True),
+        StructField("last_infrastructure_maintenance", DoubleType(), True),
+        StructField("last_infrastructure_check", DoubleType(), True),
+        StructField("has_flag", StringType(), True),
+        StructField("flag_maintainer", DoubleType(), True),
+        StructField("has_pip_static", StringType(), True),
+        StructField("has_pip_audio", StringType(), True),
+        StructField("pip_audio_code", DoubleType(), True),
+        StructField("has_pip_realtime", StringType(), True),
+        StructField("pip_realtime_code", DoubleType(), True),
+        StructField("has_h2oa_signage", StringType(), True),
+        StructField("has_schedules", StringType(), True),
+        StructField("has_tactile_schedules", StringType(), True),
+        StructField("has_network_map", StringType(), True),
+        StructField("last_schedules_maintenance", DoubleType(), True),
+        StructField("last_schedules_check", DoubleType(), True),
+        StructField("has_sidewalk", StringType(), True),
+        StructField("sidewalk_type", DoubleType(), True),
+        StructField("has_crossing", StringType(), True),
+        StructField("has_flat_access", StringType(), True),
+        StructField("has_wide_access", StringType(), True),
+        StructField("has_tactile_access", StringType(), True),
+        StructField("has_abusive_parking", StringType(), True),
+        StructField("wheelchair_boarding", LongType(), True),
+        StructField("last_accessibility_maintenance", DoubleType(), True),
+        StructField("last_accessibility_check", DoubleType(), True),
+        StructField("near_health_clinic", LongType(), True),
+        StructField("near_hospital", LongType(), True),
+        StructField("near_university", LongType(), True),
+        StructField("near_school", LongType(), True),
+        StructField("near_police_station", LongType(), True),
+        StructField("near_fire_station", LongType(), True),
+        StructField("near_shopping", LongType(), True),
+        StructField("near_historic_building", LongType(), True),
+        StructField("near_transit_office", LongType(), True),
+        StructField("near_beach", LongType(), True),
+        StructField("subway", LongType(), True),
+        StructField("light_rail", LongType(), True),
+        StructField("train", LongType(), True),
+        StructField("boat", LongType(), True),
+        StructField("airport", LongType(), True),
+        StructField("bike_sharing", LongType(), True),
+        StructField("bike_parking", LongType(), True),
+        StructField("car_parking", LongType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "stop_times": StructType([
+        StructField("arrival_time", StringType(), True),
+        StructField("departure_time", StringType(), True),
+        StructField("drop_off_type", LongType(), True),
+        StructField("pickup_type", LongType(), True),
+        StructField("shape_dist_traveled", DoubleType(), True),
+        StructField("stop_id", LongType(), True),
+        StructField("stop_sequence", LongType(), True),
+        StructField("timepoint", LongType(), True),
+        StructField("trip_id", StringType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "trips": StructType([
+        StructField("calendar_desc", StringType(), True),
+        StructField("direction_id", LongType(), True),
+        StructField("pattern_id", StringType(), True),
+        StructField("route_id", StringType(), True),
+        StructField("service_id", StringType(), True),
+        StructField("shape_id", StringType(), True),
+        StructField("trip_headsign", StringType(), True),
+        StructField("trip_id", StringType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "periods": StructType([
+        StructField("period_id", LongType(), True),
+        StructField("period_name", StringType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "dates": StructType([
+        StructField("date", LongType(), True),
+        StructField("day_type", LongType(), True),
+        StructField("holiday", LongType(), True),
+        StructField("notes", StringType(), True),
+        StructField("period", LongType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "calendar_dates": StructType([
+        StructField("date", LongType(), True),
+        StructField("day_type", LongType(), True),
+        StructField("exception_type", LongType(), True),
+        StructField("holiday", LongType(), True),
+        StructField("period", LongType(), True),
+        StructField("service_id", StringType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "shapes": StructType([
+        StructField("shape_dist_traveled", DoubleType(), True),
+        StructField("shape_id", StringType(), True),
+        StructField("shape_pt_lat", DoubleType(), True),
+        StructField("shape_pt_lon", DoubleType(), True),
+        StructField("shape_pt_sequence", LongType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ]),
+    
+    "municipalities": StructType([
+        StructField("district_id", LongType(), True),
+        StructField("district_name", StringType(), True),
+        StructField("municipality_id", LongType(), True),
+        StructField("municipality_name", StringType(), True),
+        StructField("municipality_prefix", LongType(), True),
+        StructField("region_id", StringType(), True),
+        StructField("region_name", StringType(), True),
+        StructField("_source_file", StringType(), True),
+        StructField("ingested_at", TimestampType(), False)
+    ])
+}
 
 def clean_dataframe(df):
-    # Limpar floats/doubles (null ou NaN para 0)
+    """
+    Clean the DataFrame by handling nulls and NaNs
+    """
+
+    # Convert floats doubles to a default value (null or NaN to 0)
     for name, dtype in df.dtypes:
         if dtype in ['float', 'double']:
             df = df.withColumn(
                 name,
                 F.when(F.isnan(F.col(name)) | F.col(name).isNull(), F.lit(0)).otherwise(F.col(name))
             )
-    # Limpar strings (null para "NaN")
+    # Cleanup strings (null to "NaN")
     for name, dtype in df.dtypes:
         if dtype == 'string':
             df = df.withColumn(
                 name,
-                F.when(F.col(name).isNull(), F.lit("NaN")).otherwise(F.col(name))
+                F.when(F.col(name).isNull(), F.lit("UNKNOWN")).otherwise(F.col(name))
             )
+
     return df
 
 class BucketToBigQueryTask:
@@ -39,7 +285,7 @@ class BucketToBigQueryTask:
             .config(conf=conf) \
             .getOrCreate()
 
-    def process_source(self, table_name, table_source) -> DataFrame:
+    def process_source(self, table_name, table_source, schema) -> DataFrame:
         """
         Process a single source for a table from bucket to BigQuery staging
         
@@ -52,10 +298,12 @@ class BucketToBigQueryTask:
         elif table_source == "gtfs":
             source_path = f"gs://{self.bucket_name}/gtfs/{table_name}/*"
         else:
-            raise ValueError(f"Unknown source type: {table_source}")
+            raise ValueError(f"Unknown source type: {table_source}")        
         
         # Read data from GCS bucket
-        return self.spark.read.parquet(source_path)
+        return self.spark.read\
+          .schema(schema) \
+          .parquet(source_path)
     
     def write_to_bigquery(self, df: DataFrame, table_name: str, write_mode: str = "overwrite"):
         """ 
@@ -72,7 +320,7 @@ class BucketToBigQueryTask:
         df = clean_dataframe(df)
         
         df = df.dropDuplicates()  
-        
+
         destination_table = f"staging_{table_name}"
         
         # Write to BigQuery
@@ -97,7 +345,7 @@ class BucketToBigQueryTask:
             table_sorces: An array of sources for the table (endpoint, gtfs)
             write_mode: BigQuery write mode (overwrite, append)
         """
-        source_dfs = list(map(lambda source: self.process_source(table_name, source), table_sources))
+        source_dfs = list(map(lambda source: self.process_source(table_name, source, schemas[table_name if len(table_sources) == 1 else f"{source}_{table_name}"]), table_sources))
         
         if len(source_dfs) == 1:
             self.write_to_bigquery(source_dfs[0], table_name, write_mode)
