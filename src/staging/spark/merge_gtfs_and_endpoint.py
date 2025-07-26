@@ -47,7 +47,7 @@ class MergeGTFSAndEndpointTablesTask:
         
         print(f"Successfully merged {table_name} -> {destination_table}")
         
-    def process_table(self, table_name, columns_to_exclude, write_mode="overwrite"):
+    def process_table(self, table_name, columns_to_exclude, columns_to_rename, write_mode="overwrite"):
         gtfs_df = self.spark.read.format("bigquery") \
             .option("table", f"{self.project_id}.{self.dataset_id}.staging_gtfs_{table_name}") \
             .load()
@@ -62,13 +62,18 @@ class MergeGTFSAndEndpointTablesTask:
         if columns_to_exclude:
             merged_df = merged_df.drop(*columns_to_exclude)
 
+        # Rename columns if specified
+        if columns_to_rename:
+            for rename in columns_to_rename:
+                merged_df = merged_df.withColumnRenamed(rename["old_name"], rename["new_name"])
+
         self.write_to_bigquery(merged_df, table_name, write_mode)
     
     def run(self, tables, write_mode="overwrite"):
         """Run the complete task (for all tables)"""
         try:
             for table in tables:
-                self.process_table(table["name"], table["columns_to_exclude"], write_mode)
+                self.process_table(table["name"], table["columns_to_exclude"], table["columns_to_rename"], write_mode)
             print("Pipeline completed successfully!")                        
         
         except Exception as e:
@@ -101,10 +106,18 @@ task = MergeGTFSAndEndpointTablesTask(
 
 tables = [{
   "name": "routes",
-  "columns_to_exclude": ["color", "text_color", "id", "short_name", "long_name"]
+  "columns_to_exclude": ["color", "text_color", "id", "short_name", "long_name"],
+  "columns_to_rename": []
 }, {
   "name": "stops",
-  "columns_to_exclude": []
+  "columns_to_exclude": ["id", "lat", "lon", "short_name", "long_name", "tts_name", "stop_name_new"],
+  "columns_to_rename": [{
+    "old_name": "stop_lat",
+    "new_name": "stop_latitude"
+  }, {
+    "old_name": "stop_lon",
+    "new_name": "stop_longitude"
+  }]
 }]  
 
 task.run(tables, write_mode="overwrite")
