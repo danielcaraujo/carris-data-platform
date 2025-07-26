@@ -1,0 +1,42 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+        
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: data-eng-dev-437916
+    
+    - name: Upload file with gsutil
+      run: |
+        gsutil cp merge_gtfs_and_endpoint.py  gs://applied-project/grupo-1/scripts
+        
+    - name: Configure Docker for Artifact Registry
+      run: |
+        gcloud auth configure-docker europe-west1-docker.pkg.dev
+        
+    - name: Build Docker image
+      run: |
+        docker build -t europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/test-grupo1 .
+        
+    - name: Push Docker image
+      run: |
+        docker push europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/test-grupo1
+        
