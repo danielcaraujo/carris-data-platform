@@ -1,5 +1,4 @@
 {{ config(
-    materialized='table',
     partition_by={
       "field": "trip_date",
       "data_type": "date"
@@ -123,7 +122,8 @@ peak_flag AS (
 
 final AS (
     SELECT
-        MD5(CONCAT({{ surrogate_key_columns | join(' , ') }})) AS trip_sk,
+        {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }}
+            as trip_key,
         t.trip_id,
         cs.date AS trip_date,
         t.route_id,
@@ -135,8 +135,8 @@ final AS (
         i.departure_time_inicio AS departure_time,
         i.arrival_time_fim AS arrival_time,
         p.is_peak,
-        d.distancia_km,
-        du.duracao_minutos,
+        d.distancia_km AS distance_km,
+        du.duracao_minutos AS duration_minutes,
         CURRENT_TIMESTAMP() AS ingested_at
     FROM trips t
     JOIN calendar_service cs ON t.service_id = cs.service_id
@@ -146,20 +146,5 @@ final AS (
     LEFT JOIN inicio_fim i ON t.trip_id = i.trip_id
 )
 
-SELECT
-    trip_sk,
-    trip_id,
-    trip_date,
-    route_id,
-    pattern_id,
-    shape_id,
-    service_id,
-    direction_id,
-    trip_headsign,
-    departure_time,
-    arrival_time,
-    is_peak,
-    distancia_km,
-    duracao_minutos,
-    ingested_at
+SELECT *
 FROM final

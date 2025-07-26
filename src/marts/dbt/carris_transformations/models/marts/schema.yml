@@ -16,8 +16,8 @@ models:
           - not_null
           - unique
       - name: trip_date
-        description: The specific date of the service exception in YYYYMMDD format.
-        data_type: integer
+        description: The specific date of the service in YYYY-MM-DD format.
+        data_type: date
         data_tests:
           - not_null
       - name: trip_id
@@ -53,6 +53,31 @@ models:
       - name: trip_headsign
         description: Text displayed on the trip.
         data_type: string
+        data_tests:
+          - not_null
+      - name: departure_time
+        description: XXXXXX
+        data_type: time
+        data_tests:
+          - not_null
+      - name: arrival_time
+        description: XXXXXX
+        data_type: time
+        data_tests:
+          - not_null
+      - name: is_peak
+        description: XXXXXX
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: distance_km
+        description: XXXXXX
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: duration_minutes
+        description: XXXXXX
+        data_type: float64
         data_tests:
           - not_null
       - name: ingested_at
