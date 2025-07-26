@@ -15,9 +15,16 @@ models:
         data_tests:
           - not_null
           - unique
+      - name: trip_date
+        description: The specific date of the service exception in YYYYMMDD format.
+        data_type: integer
+        data_tests:
+          - not_null
       - name: trip_id
         description: Unique identifier for each trip.
         data_type: string
+        data_tests:
+          - not_null
       - name: route_id
         description: Unique identifier for each route of a trip.
         data_type: string
@@ -44,7 +51,7 @@ models:
         data_tests:
           - not_null
       - name: trip_headsign
-        description: String that represents the headsign of a trip.
+        description: Text displayed on the trip.
         data_type: string
         data_tests:
           - not_null

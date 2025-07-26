@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 sources:
   - name: carris_transformations
@@ -6,25 +6,69 @@ sources:
     schema: applied_project_staging_grupo_1
     tables:
       - name: staging_trips
-        description: SOMETHING.
+        description: "Contains trip-level information including route, pattern, and service details."
         columns:
           - name: calendar_desc
-            description: Reward given for completing an offer.
+            description: "Description of the calendar service."
           - name: direction_id
-            description: A list of channels through which the offer was received.
+            description: "Direction identifier of the trip."
           - name: pattern_id
-            description: Minimum required spend to complete the offer.
+            description: "Pattern identifier for the trip."
           - name: route_id
-            description: Time in minutes for the offer to be open.
+            description: "Route identifier for the trip."
           - name: service_id
-            description: Type of offer.
+            description: "Service identifier associated with the trip."
           - name: shape_id
-            description: Unique identifier for each offer.
+            description: "Shape identifier representing the path of the trip."
           - name: trip_headsign
-            description: Unique identifier for each offer.
+            description: "Headsign text that appears on the vehicle."
           - name: trip_id
-            description: Unique identifier for each offer.
+            description: "Unique identifier for each trip."
           - name: _source_file
-            description: Unique identifier for each offer.
+            description: "Source file from which the data was ingested."
           - name: ingested_at
-            description: Unique identifier for each offer.
+            description: "Timestamp when the data was ingested."
+      - name: staging_stop_times
+        description: "Contains stop times and related details for each trip."
+        columns:
+          - name: arrival_time
+            description: "Scheduled arrival time at the stop in HH:MM:SS."
+          - name: departure_time
+            description: "Scheduled departure time from the stop in HH:MM:SS."
+          - name: drop_off_type
+            description: "Indicates drop off type at the stop."
+          - name: pickup_type
+            description: "Indicates pickup type at the stop."
+          - name: shape_dist_traveled
+            description: "Distance traveled along the shape at this stop (in kilometers)."
+          - name: stop_id
+            description: "Unique identifier of the stop."
+          - name: stop_sequence
+            description: "Sequence order of the stop within the trip."
+          - name: timepoint
+            description: "Flag indicating whether this stop is a timepoint."
+          - name: trip_id
+            description: "Unique identifier of the trip."
+          - name: _source_file
+            description: "Source file from which the data was ingested."
+          - name: ingested_at
+            description: "Timestamp when the data was ingested."
+      - name: staging_calendar_dates
+        description: "Calendar dates with information about day type, holidays and exceptions."
+        columns:
+          - name: date
+            description: "Date in YYYYMMDD format."
+          - name: day_type
+            description: "Day type: 1 = weekday, 2 = weekend."
+          - name: exception_type
+            description: "Indicates if the date is an exception (1 = exception, 0 = regular day)."
+          - name: holiday
+            description: "Flag indicating if the date is a holiday (1 = holiday, 0 = no)."
+          - name: period
+            description: "Period identifier for grouping."
+          - name: service_id
+            description: "Service identifier related to the calendar date."
+          - name: _source_file
+            description: "Source file from which the data was ingested."
+          - name: ingested_at
+            description: "Timestamp when the data was ingested."
