@@ -27,7 +27,8 @@ jobs:
     # - name: Upload file with gsutil
     #   run: |
     #     gsutil cp merge_gtfs_and_endpoint.py  gs://applied-project/grupo-1/scripts
-        
+
+
     - name: Configure Docker for Artifact Registry
       run: |
         gcloud auth configure-docker europe-west1-docker.pkg.dev
