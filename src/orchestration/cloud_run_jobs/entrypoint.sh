@@ -5,19 +5,19 @@ set -e
 REPO_URL=${REPO_URL:-"https://github.com/danielcaraujo/carris-data-platform.git"}
 
 # Folder where is dbt code
-APP_DIR="/src/marts/dbt/carris_transformations"
+APP_DIR="./carris-data-platform/src/marts/dbt/carris_transformations"
 
-# Se a pasta existe, faz pull, senão clona
+# If the directory exists, pull the latest changes; otherwise, clone the repository
 if [ -d "$APP_DIR" ]; then
-  echo "Repositório já existe, fazendo git pull..."
+  echo "Updating existing repository..."
   cd $APP_DIR
   git pull
 else
-  echo "Clonando repositório..."
-  git clone $REPO_URL $APP_DIR
+  echo "Cloning repository..."
+  git clone $REPO_URL
   cd $APP_DIR
 fi
 
 dbt deps
 
-dbt run
+dbt build
