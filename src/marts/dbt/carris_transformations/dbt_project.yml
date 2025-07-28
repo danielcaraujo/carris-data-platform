@@ -23,6 +23,8 @@ clean-targets:
 # files using the `{{ config(...) }}` macro.
 models:
   carris_transformations:
-    # Config indicated by + and applies to all files under models/marts
+    # Config indicated by + and applies to all files under models/marts and models/staging
+    staging:
+      +materialized: view
     marts:
       +materialized: table

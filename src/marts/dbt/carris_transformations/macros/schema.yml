@@ -1,0 +1,66 @@
+version: 1
+
+macros:
+  - name: convert_gtfs_time
+    description: Converts GTFS time strings (which may exceed 24h, e.g. 25:10:00) to a valid BigQuery TIME value.
+    arguments:
+      - name: time_column
+        description: The column or expression containing the GTFS time string (HH:MM:SS).
+        type: string
+      - name: output_column_name
+        description: Name for the resulting TIME column.
+        type: string
+  - name: convert_gtfs_time_to_seconds
+    description: Converts a GTFS time string (HH:MM:SS) into the total number of seconds since midnight.
+    arguments:
+      - name: time_column
+        description: The column or expression containing the GTFS time string.
+        type: string
+      - name: output_column_name
+        description: Name for the resulting seconds column.
+        type: string
+  - name: parse_date
+    description: Parses a date string in YYYYMMDD format and returns a standard DATE value.
+    arguments:
+      - name: date_column
+        description: The column or expression containing the GTFS date (YYYYMMDD).
+        type: string
+      - name: output_column_name
+        description: Name for the resulting DATE column.
+        type: string
+  - name: determine_peak_period
+    description: Determines whether a trip time falls within a peak period, considering time, day type, holidays, and exception types.
+    arguments:
+      - name: time_column
+        description: The column containing the trip time (as TIME).
+        type: string
+      - name: day_type_column
+        description: The column indicating the type of day (e.g. 1- weekday, 2- saturday, 3- sunday).
+        type: string
+      - name: exception_type_column
+        description: Optional column indicating schedule exception type.
+        type: string
+      - name: holiday_column
+        description: Optional column indicating if the date is a holiday.
+        type: string
+  - name: get_trip_duration_minutes
+    description: Calculates the duration of a trip in minutes given the start and end time in seconds.
+    arguments:
+      - name: start_seconds
+        description: The trip's departure time, in seconds since midnight.
+        type: integer
+      - name: end_seconds
+        description: The trip's arrival time, in seconds since midnight.
+        type: integer
+      - name: output_column_name
+        description: Name for the resulting duration column.
+        type: string
+  - name: standardize_partitioning
+    description: Macro to apply standardized partition configuration to a table in dbt, using the provided partition field and data type.
+    arguments:
+      - name: partition_field
+        description: The name of the partition field.
+        type: string
+      - name: partition_type
+        description: Data type for the partition field (default 'date').
+        type: string

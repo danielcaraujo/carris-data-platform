@@ -7,7 +7,7 @@ models:
       contract:
         enforced: true
     description: >
-      Fact table about trips.
+      Fact table containing scheduled trip information, including timing, distance, duration, stop count and other trip-level attributes for each scheduled service.
     columns:
       - name: trip_key
         description: Unique key identifier for each trip.
@@ -15,14 +15,14 @@ models:
         data_tests:
           - not_null
           - unique
-      - name: trip_date
-        description: The specific date of the service in YYYY-MM-DD format.
-        data_type: date
-        data_tests:
-          - not_null
       - name: trip_id
         description: Unique identifier for each trip.
         data_type: string
+        data_tests:
+          - not_null
+      - name: trip_date
+        description: The specific date of the service in YYYY-MM-DD format.
+        data_type: date
         data_tests:
           - not_null
       - name: route_id
@@ -49,39 +49,44 @@ models:
         description: Unique identifier for each direction.
         data_type: integer
         data_tests:
-          - not_null
+          - not_null    
       - name: trip_headsign
         description: Text displayed on the trip.
         data_type: string
         data_tests:
           - not_null
       - name: departure_time
-        description: XXXXXX
+        description: Scheduled departure time for the trip from the origin stop, in HH:MM:SS format.
         data_type: time
         data_tests:
           - not_null
       - name: arrival_time
-        description: XXXXXX
+        description: Scheduled arrival time for the trip at the destination stop, in HH:MM:SS format.
         data_type: time
         data_tests:
           - not_null
       - name: is_peak
-        description: XXXXXX
+        description: Indicates whether the trip occurs during peak hours (true) or off-peak hours (false).
         data_type: boolean
         data_tests:
           - not_null
       - name: distance_km
-        description: XXXXXX
+        description: Total distance covered by the trip, in kilometers.
         data_type: float64
         data_tests:
           - not_null
       - name: duration_minutes
-        description: XXXXXX
+        description: Total scheduled duration of the trip, in minutes.
         data_type: float64
         data_tests:
           - not_null
+      - name: total_stops
+        description: Total number of stops served by the trip from start to end.
+        data_type: integer
+        data_tests:
+          - not_null
       - name: ingested_at
-        description: Timestamp when the data was ingested.
+        description: Timestamp indicating when the data was ingested into the data warehouse.
         data_type: timestamp
         data_tests:
           - not_null
@@ -90,7 +95,7 @@ models:
       contract:
         enforced: true
     description: >
-      Contains calendar exceptions and special service dates for each service_id as defined in the GTFS feed.
+      Contains calendar and special service dates for each service_id as defined in the GTFS feed.
     columns:
       - name: calendar_service_key
         description: Unique key identifier for each trip.
@@ -99,12 +104,27 @@ models:
           - not_null
           - unique
       - name: date
-        description: The specific date of the service exception in YYYYMMDD format.
+        description: The specific date of the service in YYYYMMDD format.
         data_type: integer
+        data_tests:
+          - not_null
+      - name: service_date
+        description: The specific date of the service in YYYY-MM-DD format.
+        data_type: date
         data_tests:
           - not_null
       - name: service_id
         description: Unique identifier for each service.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: period_id
+        description: Unique identifier for each period or season.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: period_name
+        description: Name or description of the period.
         data_type: string
         data_tests:
           - not_null
