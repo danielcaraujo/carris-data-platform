@@ -10,22 +10,9 @@ PROJECT_ID = 'data-eng-dev-437916'
 REGION = 'europe-west1'
 BATCH_ID = f"spark-batch-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 RAW_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
-STAGING_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/load_to_bigquery.py'
-
-CLOUD_RUN_JOB_NAME = 'nome-do-job-cloudrun' #define our cloud_run_jon_name
-
-# def trigger_cloud_run_job(project_id, region, job_name):
-#     credentials, _ = default()
-#     service = build('run', 'v1', credentials=credentials)
-
-#     parent = f"namespaces/{project_id}/jobs/{job_name}"
-#     request = service.namespaces().jobs().run(
-#         name=parent,
-#         body={}
-#     )
-#     response = request.execute()
-#     print(f"Cloud Run Job triggered: {response}")
-
+STAGING_LOAD_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/load_to_bigquery.py'
+STAGING_MERGE_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/merge_gtfs_and_endpoint.py'
+STAGING_EXPLODE_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/explode_array_columns.py'
 
 def create_batch_config(script_path: str) -> dict:
     return {
@@ -60,24 +47,38 @@ with models.DAG(
         batch=create_batch_config(RAW_SCRIPT_PATH),
     )
 
-    staging_layer_bigquery = DataprocCreateBatchOperator(
-        task_id='staging_layer_bigquery',
+    load_to_bigquery = DataprocCreateBatchOperator(
+        task_id='staging_load_bigquery',
         project_id=PROJECT_ID,
         region=REGION,
-        batch_id=f"spark-staging-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
-        batch=create_batch_config(STAGING_SCRIPT_PATH),
+        batch_id=f"spark-staging-load-bigquery{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+        batch=create_batch_config(STAGING_LOAD_SCRIPT_PATH),
     )
 
-    raw_layer_gcs_bucket >> staging_layer_bigquery
+    merge_gfts_endpoint = DataprocCreateBatchOperator(
+        task_id='staging_merge_gfts_endpoint',
+        project_id=PROJECT_ID,
+        region=REGION,
+        batch_id=f"spark-staging-merge-gfts-endpoint{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+        batch=create_batch_config(STAGING_MERGE_SCRIPT_PATH),
+    )
 
-    # trigger_job = PythonOperator(
-    #     task_id='trigger_cloud_run_job',
-    #     python_callable=trigger_cloud_run_job,
-    #     op_kwargs={
-    #         'project_id': PROJECT_ID,
-    #         'region': REGION,
-    #         'job_name': CLOUD_RUN_JOB_NAME,
-    #     }
-    # )
+    explode_array_columns = DataprocCreateBatchOperator(
+        task_id='staging_explode_array_columns',
+        project_id=PROJECT_ID,
+        region=REGION,
+        batch_id=f"spark-staging-explode-arraycolumns{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+        batch=create_batch_config(STAGING_EXPLODE_SCRIPT_PATH),
+    )
 
-    raw_layer_gcs_bucket >> staging_layer_bigquery
+    trigger_dbt_cloud_run_job = BashOperator(
+        task_id='execute_cloud_run_job',
+        bash_command=(
+            'gcloud run jobs execute NOME_DO_JOB '
+            '--region=REGIAO '
+            '--project=PROJETO '
+            '--wait'
+        ),
+    )
+
+    raw_layer_gcs_bucket >> load_to_bigquery >> merge_gfts_endpoint >> explode_array_columns >> trigger_dbt_cloud_run_job
