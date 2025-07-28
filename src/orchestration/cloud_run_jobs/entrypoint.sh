@@ -14,7 +14,7 @@ if [ -d "$APP_DIR" ]; then
   git pull
 else
   echo "Cloning repository..."
-  git clone $REPO_URL $APP_DIR
+  git clone $REPO_URL
   cd $APP_DIR
 fi
 
