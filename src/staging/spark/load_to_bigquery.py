@@ -323,6 +323,8 @@ class BucketToBigQueryTask:
 
         destination_table = f"staging_{table_name}"
         
+        self.spark.sql(f"DROP TABLE IF EXISTS `{self.project_id}.{self.dataset_id}.{destination_table}`")
+
         # Write to BigQuery
         df.write \
             .format("bigquery") \
