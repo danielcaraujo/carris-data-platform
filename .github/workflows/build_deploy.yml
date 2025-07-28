@@ -39,13 +39,3 @@ jobs:
     - name: Push Docker image
       run: |
         docker push europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/test-grupo1
-
-    - name: Deploy to Cloud Run
-      run: |
-        gcloud run deploy test-grupo1 \
-          --image europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/test-grupo1 \
-          --region europe-west1 \
-          --platform managed \
-          --allow-unauthenticated \
-          --project data-eng-dev-437916
-        

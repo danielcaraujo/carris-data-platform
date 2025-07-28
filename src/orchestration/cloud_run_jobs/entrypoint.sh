@@ -20,4 +20,4 @@ fi
 
 dbt deps
 
-dbt run
+dbt build
