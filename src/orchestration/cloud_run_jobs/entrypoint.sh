@@ -5,7 +5,7 @@ set -e
 REPO_URL=${REPO_URL:-"https://github.com/danielcaraujo/carris-data-platform.git"}
 
 # Folder where is dbt code
-APP_DIR="/src/marts/dbt/carris_transformations"
+APP_DIR="./src/marts/dbt/carris_transformations"
 
 # If the directory exists, pull the latest changes; otherwise, clone the repository
 if [ -d "$APP_DIR" ]; then
