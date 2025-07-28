@@ -2,7 +2,7 @@
 set -e
 
 # Git repos url
-REPO_URL=${REPO_URL:-"https://github.com/danielcaraujo/carris-data-platform/tree/main"}
+REPO_URL=${REPO_URL:-"https://github.com/danielcaraujo/carris-data-platform.git"}
 
 # Folder where is dbt code
 APP_DIR="/src/marts/dbt/carris_transformations"
