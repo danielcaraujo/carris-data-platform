@@ -71,14 +71,14 @@ with models.DAG(
         batch=create_batch_config(STAGING_EXPLODE_SCRIPT_PATH),
     )
 
-    trigger_dbt_cloud_run_job = BashOperator(
-        task_id='execute_cloud_run_job',
-        bash_command=(
-            'gcloud run jobs execute NOME_DO_JOB '
-            '--region=REGIAO '
-            '--project=PROJETO '
-            '--wait'
-        ),
-    )
+    # trigger_dbt_cloud_run_job = BashOperator(
+    #     task_id='execute_cloud_run_job',
+    #     bash_command=(
+    #         'gcloud run jobs execute NOME_DO_JOB '
+    #         '--region=REGIAO '
+    #         '--project=PROJETO '
+    #         '--wait'
+    #     ),
+    # )
 
-    raw_layer_gcs_bucket >> load_to_bigquery >> merge_gfts_endpoint >> explode_array_columns >> trigger_dbt_cloud_run_job
+    raw_layer_gcs_bucket >> load_to_bigquery >> merge_gfts_endpoint >> explode_array_columns
