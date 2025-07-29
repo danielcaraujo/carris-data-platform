@@ -1,6 +1,8 @@
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.conf import SparkConf
 from pyspark.sql import functions as F
+from google.cloud import bigquery
+from google.cloud.exceptions import NotFound
 
 from pyspark.sql.types import StructType, StructField, StringType, LongType, DoubleType, BooleanType, TimestampType
 
@@ -22,7 +24,7 @@ schemas = {
         StructField("tts_name", StringType(), True),
         StructField("_endpoint", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "endpoint_routes": StructType([
@@ -42,7 +44,7 @@ schemas = {
         StructField("tts_name", StringType(), True),
         StructField("_endpoint", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "gtfs_routes": StructType([
@@ -62,7 +64,7 @@ schemas = {
         StructField("school", DoubleType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "endpoint_stops": StructType([
@@ -84,7 +86,7 @@ schemas = {
         StructField("wheelchair_boarding", BooleanType(), True),
         StructField("_endpoint", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "gtfs_stops": StructType([
@@ -168,7 +170,7 @@ schemas = {
         StructField("car_parking", LongType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "stop_times": StructType([
@@ -183,7 +185,7 @@ schemas = {
         StructField("trip_id", StringType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "trips": StructType([
@@ -197,7 +199,7 @@ schemas = {
         StructField("trip_id", StringType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "periods": StructType([
@@ -205,7 +207,7 @@ schemas = {
         StructField("period_name", StringType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "dates": StructType([
@@ -216,7 +218,7 @@ schemas = {
         StructField("period", LongType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "calendar_dates": StructType([
@@ -228,7 +230,7 @@ schemas = {
         StructField("service_id", StringType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "shapes": StructType([
@@ -239,7 +241,7 @@ schemas = {
         StructField("shape_pt_sequence", LongType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ]),
     
     "municipalities": StructType([
@@ -252,7 +254,7 @@ schemas = {
         StructField("region_name", StringType(), True),
         StructField("_source_file", StringType(), True),
         StructField("ingested_at", TimestampType(), False),
-        StructField("partition_date", LongType(), False)
+        StructField("partition_date", StringType(), False)
     ])
 }
 
@@ -286,6 +288,7 @@ class BucketToBigQueryTask:
         self.dataset_id = dataset_id
         self.bucket_name = bucket_name
         self.spark = self._create_spark_session()
+        self.bigquery_client = bigquery.Client()  
     
     def _create_spark_session(self):
         """Create and configure Spark session"""
@@ -297,6 +300,14 @@ class BucketToBigQueryTask:
             .config(conf=conf) \
             .getOrCreate()
 
+    def drop_table_if_exists(self, project_id, dataset_id, table_name):
+        table_id = f"{project_id}.{dataset_id}.{table_name}"
+        try:
+            self.bigquery_client.delete_table(table_id)
+            print(f"Table {table_id} deleted successfully")
+        except NotFound:
+            print(f"Table {table_id} not found, nothing to delete")
+        
     def process_source(self, table_name, table_source, schema) -> DataFrame:
         """
         Process a single source for a table from bucket to BigQuery staging
@@ -335,7 +346,7 @@ class BucketToBigQueryTask:
 
         destination_table = f"staging_{table_name}"
         
-        self.spark.sql(f"DROP TABLE IF EXISTS `{self.project_id}.{self.dataset_id}.{destination_table}`")
+        self.drop_table_if_exists(self.project_id, self.dataset_id, destination_table)
 
         # Write to BigQuery
         df.write \
