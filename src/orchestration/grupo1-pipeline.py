@@ -5,6 +5,8 @@ from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
 from google.auth import default
 from googleapiclient.discovery import build
+from airflow.operators.bash import BashOperator
+from airflow.models import Variable
 
 PROJECT_ID = 'data-eng-dev-437916'
 REGION = 'europe-west1'
@@ -13,6 +15,8 @@ RAW_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
 STAGING_LOAD_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/load_to_bigquery.py'
 STAGING_MERGE_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/merge_gtfs_and_endpoint.py'
 STAGING_EXPLODE_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/explode_array_columns.py'
+project_id = Variable.get("PROJECT_ID_GRUPO1")
+target = Variable.get("TARGET_GRUPO1")
 
 def create_batch_config(script_path: str) -> dict:
     return {
@@ -71,14 +75,22 @@ with models.DAG(
         batch=create_batch_config(STAGING_EXPLODE_SCRIPT_PATH),
     )
 
-    # trigger_dbt_cloud_run_job = BashOperator(
-    #     task_id='execute_cloud_run_job',
-    #     bash_command=(
-    #         'gcloud run jobs execute NOME_DO_JOB '
-    #         '--region=REGIAO '
-    #         '--project=PROJETO '
-    #         '--wait'
-    #     ),
-    # )
+    update_dbt_job = BashOperator(
+        task_id="update_cloud_run_job",
+        bash_command="""
+        gcloud run jobs update dbtgrupo1 \
+          --image=europe-west1-docker.pkg.dev/{project_id}/dbt-grupo-1/test-grupo1:latest \
+          --region=europe-west1 \
+          --set-env-vars=PROJECT_ID={project_id},TARGET={target}
+        """
+    )
 
-    raw_layer_gcs_bucket >> load_to_bigquery >> merge_gfts_endpoint >> explode_array_columns
+    execute_dbt_job = BashOperator(
+        task_id="execute_cloud_run_job",
+        bash_command="""
+        gcloud run jobs execute dbtgrupo1 \
+          --region=europe-west1
+        """
+    )
+
+    raw_layer_gcs_bucket >> load_to_bigquery >> merge_gfts_endpoint >> explode_array_columns >> update_dbt_job >> execute_dbt_job
