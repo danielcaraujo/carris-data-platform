@@ -7,6 +7,14 @@ REPO_URL=${REPO_URL:-"https://github.com/danielcaraujo/carris-data-platform.git"
 # Folder where is dbt code
 APP_DIR="./carris-data-platform/src/marts/dbt/carris_transformations"
 
+# Check if projectID env var is defined
+if [ -z "$projectID" ]; then
+  echo "Error: projectID env var is not defined."
+  exit 1
+fi
+
+echo "Using projectID: $projectID"
+
 # If the directory exists, pull the latest changes; otherwise, clone the repository
 if [ -d "$APP_DIR" ]; then
   echo "Updating existing repository..."
@@ -20,4 +28,4 @@ fi
 
 dbt deps
 
-dbt build
+dbt build --vars "{project_id: '$projectID'}"
