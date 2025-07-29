@@ -300,8 +300,8 @@ class BucketToBigQueryTask:
             .config(conf=conf) \
             .getOrCreate()
 
-    def drop_table_if_exists(self, project_id, dataset_id, table_name):
-        table_id = f"{project_id}.{dataset_id}.{table_name}"
+    def drop_table_if_exists(self, table_name):
+        table_id = f"{self.project_id}.{self.dataset_id}.{table_name}"
         try:
             self.bigquery_client.delete_table(table_id)
             print(f"Table {table_id} deleted successfully")
@@ -346,7 +346,7 @@ class BucketToBigQueryTask:
 
         destination_table = f"staging_{table_name}"
         
-        self.drop_table_if_exists(self.project_id, self.dataset_id, destination_table)
+        self.drop_table_if_exists(destination_table)
 
         # Write to BigQuery
         df.write \
