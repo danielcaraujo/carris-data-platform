@@ -77,7 +77,7 @@ with models.DAG(
 
     update_dbt_job = BashOperator(
         task_id="update_cloud_run_job",
-        bash_command="""
+        bash_command=f"""
         gcloud run jobs update dbtgrupo1 \
           --image=europe-west1-docker.pkg.dev/{project_id}/dbt-grupo-1/test-grupo1:latest \
           --region=europe-west1 \
