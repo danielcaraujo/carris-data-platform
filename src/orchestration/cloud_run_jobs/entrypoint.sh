@@ -28,4 +28,4 @@ fi
 
 dbt deps
 
-dbt build --vars "{PROJECT_ID': '$projectID'}"
+dbt build --vars "{PROJECT_ID: '$projectID'}"
