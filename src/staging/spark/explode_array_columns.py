@@ -44,6 +44,7 @@ class ExplodeArrayColumnsTask:
             .option("allowSchemaUpdates", "true") \
             .option("createDisposition", "CREATE_IF_NEEDED") \
             .option("writeDisposition", "WRITE_TRUNCATE") \
+            .partitionBy("partition_date") \
             .mode(write_mode) \
             .save()
 

@@ -21,7 +21,8 @@ schemas = {
         StructField("text_color", StringType(), True),
         StructField("tts_name", StringType(), True),
         StructField("_endpoint", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "endpoint_routes": StructType([
@@ -40,7 +41,8 @@ schemas = {
         StructField("text_color", StringType(), True),
         StructField("tts_name", StringType(), True),
         StructField("_endpoint", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "gtfs_routes": StructType([
@@ -59,7 +61,8 @@ schemas = {
         StructField("route_type", LongType(), True),
         StructField("school", DoubleType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "endpoint_stops": StructType([
@@ -80,7 +83,8 @@ schemas = {
         StructField("tts_name", StringType(), True),
         StructField("wheelchair_boarding", BooleanType(), True),
         StructField("_endpoint", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "gtfs_stops": StructType([
@@ -163,7 +167,8 @@ schemas = {
         StructField("bike_parking", LongType(), True),
         StructField("car_parking", LongType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "stop_times": StructType([
@@ -177,7 +182,8 @@ schemas = {
         StructField("timepoint", LongType(), True),
         StructField("trip_id", StringType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "trips": StructType([
@@ -190,14 +196,16 @@ schemas = {
         StructField("trip_headsign", StringType(), True),
         StructField("trip_id", StringType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "periods": StructType([
         StructField("period_id", LongType(), True),
         StructField("period_name", StringType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "dates": StructType([
@@ -207,7 +215,8 @@ schemas = {
         StructField("notes", StringType(), True),
         StructField("period", LongType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "calendar_dates": StructType([
@@ -218,7 +227,8 @@ schemas = {
         StructField("period", LongType(), True),
         StructField("service_id", StringType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "shapes": StructType([
@@ -228,7 +238,8 @@ schemas = {
         StructField("shape_pt_lon", DoubleType(), True),
         StructField("shape_pt_sequence", LongType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ]),
     
     "municipalities": StructType([
@@ -240,7 +251,8 @@ schemas = {
         StructField("region_id", StringType(), True),
         StructField("region_name", StringType(), True),
         StructField("_source_file", StringType(), True),
-        StructField("ingested_at", TimestampType(), False)
+        StructField("ingested_at", TimestampType(), False),
+        StructField("partition_date", LongType(), False)
     ])
 }
 
@@ -333,6 +345,7 @@ class BucketToBigQueryTask:
             .option("allowSchemaUpdates", "true") \
             .option("createDisposition", "CREATE_IF_NEEDED") \
             .option("writeDisposition", "WRITE_TRUNCATE") \
+            .partitionBy("partition_date") \
             .mode(write_mode) \
             .save()
         
