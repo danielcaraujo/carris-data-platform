@@ -9,11 +9,11 @@ APP_DIR="./carris-data-platform/src/marts/dbt/carris_transformations"
 
 # Check if projectID env var is defined
 if [ -z "$projectID" ]; then
-  echo "Error: projectID env var is not defined."
+  echo "Error: PROJECT_ID' env var is not defined."
   exit 1
 fi
 
-echo "Using projectID: $projectID"
+echo "Using PROJECT_ID': $projectID"
 
 # If the directory exists, pull the latest changes; otherwise, clone the repository
 if [ -d "$APP_DIR" ]; then
@@ -28,4 +28,4 @@ fi
 
 dbt deps
 
-dbt build --vars "{project_id: '$projectID'}"
+dbt build --vars "{PROJECT_ID': '$projectID'}"
