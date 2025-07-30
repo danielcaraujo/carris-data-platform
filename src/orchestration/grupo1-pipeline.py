@@ -14,7 +14,7 @@ BATCH_ID = f"spark-batch-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 RAW_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
 STAGING_LOAD_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/load_to_bigquery.py'
 STAGING_MERGE_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/merge_gtfs_and_endpoint.py'
-STAGING_EXPLODE_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/explode_array_columns.py'
+STAGING_CONVERT_ARRAY_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/convert_array_columns.py'
 project_id = Variable.get("PROJECT_ID_GRUPO1")
 target = Variable.get("TARGET_GRUPO1")
 
@@ -67,12 +67,12 @@ with models.DAG(
         batch=create_batch_config(STAGING_MERGE_SCRIPT_PATH),
     )
 
-    explode_array_columns = DataprocCreateBatchOperator(
+    convert_array_columns = DataprocCreateBatchOperator(
         task_id='staging_explode_array_columns',
         project_id=PROJECT_ID,
         region=REGION,
-        batch_id=f"spark-staging-explode-arraycolumns{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
-        batch=create_batch_config(STAGING_EXPLODE_SCRIPT_PATH),
+        batch_id=f"spark-staging-convert-arraycolumns{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+        batch=create_batch_config(STAGING_CONVERT_ARRAY_SCRIPT_PATH),
     )
 
     update_dbt_job = BashOperator(
@@ -93,4 +93,4 @@ with models.DAG(
         """
     )
 
-    raw_layer_gcs_bucket >> load_to_bigquery >> merge_gfts_endpoint >> explode_array_columns >> update_dbt_job >> execute_dbt_job
+    raw_layer_gcs_bucket >> load_to_bigquery >> merge_gfts_endpoint >> convert_array_columns >> update_dbt_job >> execute_dbt_job
