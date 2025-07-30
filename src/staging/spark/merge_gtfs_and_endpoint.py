@@ -59,6 +59,8 @@ class MergeGTFSAndEndpointTablesTask:
         gtfs_df_new_cols = gtfs_df.select([col for col in gtfs_df.columns if col not in endpoint_df.columns])
         merged_df = endpoint_df.join(gtfs_df_new_cols, endpoint_df.id == gtfs_df_new_cols[f"{table_name[:-1]}_id"], "inner")
 
+        merged_df = merged_df.dropDuplicates()
+  
         # Exclude specified columns if provided
         if columns_to_exclude:
             merged_df = merged_df.drop(*columns_to_exclude)
