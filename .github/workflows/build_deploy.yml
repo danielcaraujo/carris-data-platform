@@ -34,8 +34,8 @@ jobs:
         
     - name: Build Docker image
       run: |
-        docker build -t europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/test-grupo1 src/orchestration/cloud_run_jobs
+        docker build -t europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/grupo1 src/orchestration/cloud_run_jobs
         
     - name: Push Docker image
       run: |
-        docker push europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/test-grupo1
+        docker push europe-west1-docker.pkg.dev/data-eng-dev-437916/dbt-grupo-1/grupo1
