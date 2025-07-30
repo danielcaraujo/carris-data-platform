@@ -26,7 +26,7 @@ jobs:
     
     - name: Upload spark scripts with gsutil
       run: |
-        gsutil cp src/staging/spark/explode_array_columns.py src/staging/spark/load_to_bigquery.py src/staging/spark/merge_gtfs_and_endpoint.py  gs://applied-project/grupo-1/scripts
+        gsutil cp src/staging/spark/convert_array_columns.py src/staging/spark/load_to_bigquery.py src/staging/spark/merge_gtfs_and_endpoint.py  gs://applied-project/grupo-1/scripts
 
     - name: Configure Docker for Artifact Registry
       run: |
