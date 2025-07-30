@@ -317,9 +317,9 @@ class BucketToBigQueryTask:
             table_source: Source type (endpoint, gtfs)
         """
         if table_source == "endpoint":
-            source_path = f"gs://{self.bucket_name}/{table_name}/*"
+            source_path = f"gs://{self.bucket_name}/{table_name}"
         elif table_source == "gtfs":
-            source_path = f"gs://{self.bucket_name}/gtfs/{table_name}/*"
+            source_path = f"gs://{self.bucket_name}/gtfs/{table_name}"
         else:
             raise ValueError(f"Unknown source type: {table_source}")        
         
@@ -340,6 +340,11 @@ class BucketToBigQueryTask:
         # Add ingestion timestamp          
         df = df.withColumn("ingested_at", F.current_timestamp())
         
+        df = df.withColumn(
+            "partition_date", 
+            F.to_date(F.col("partition_date"), "yyyyMMdd")
+        )
+
         df = clean_dataframe(df)
         
         df = df.dropDuplicates()  
@@ -356,6 +361,8 @@ class BucketToBigQueryTask:
             .option("allowSchemaUpdates", "true") \
             .option("createDisposition", "CREATE_IF_NEEDED") \
             .option("writeDisposition", "WRITE_TRUNCATE") \
+            .option("maxRetryCount", "3") \
+            .option("retryDelayMultiplier", "2") \
             .partitionBy("partition_date") \
             .mode(write_mode) \
             .save()
