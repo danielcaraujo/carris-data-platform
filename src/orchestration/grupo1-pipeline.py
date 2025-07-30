@@ -79,7 +79,7 @@ with models.DAG(
         task_id="update_cloud_run_job",
         bash_command=f"""
         gcloud run jobs update dbtgrupo1 \
-          --image=europe-west1-docker.pkg.dev/{project_id}/dbt-grupo-1/test-grupo1:latest \
+          --image=europe-west1-docker.pkg.dev/{project_id}/dbt-grupo-1/grupo1:latest \
           --region=europe-west1 \
           --set-env-vars=PROJECT_ID={project_id},TARGET={target}
         """
