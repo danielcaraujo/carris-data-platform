@@ -10,7 +10,6 @@ from airflow.models import Variable
 
 PROJECT_ID = 'data-eng-dev-437916'
 REGION = 'europe-west1'
-BATCH_ID = f"spark-batch-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 RAW_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
 STAGING_LOAD_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/load_to_bigquery.py'
 STAGING_MERGE_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/merge_gtfs_and_endpoint.py'
