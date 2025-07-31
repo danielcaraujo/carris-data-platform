@@ -16,13 +16,13 @@ The data pipeline follows a multi-layered architecture (Raw, Staging, Marts) to 
     *   A series of PySpark jobs are run on Dataproc Serverless to process the raw data:
         *   `load_to_bigquery.py`: Reads the raw Parquet files from GCS, applies predefined schemas, cleans the data, and loads it into staging tables in Google BigQuery.
         *   `merge_gtfs_and_endpoint.py`: Merges and unifies datasets that have sources from both the GTFS feed and the API (e.g., `stops`, `routes`).
-        *   `explode_array_columns.py`: Processes columns containing JSON arrays, exploding them into individual rows to create normalized tables for cleaner modeling.
+        *   `convert_array_columns.py`: Transforms stringified JSON arrays into native BigQuery ARRAY types for easier querying.
 
-3.  **Data Transformation (Marts Layer)**
-    *   A dbt project (`src/marts/dbt/carris_transformations`) transforms the staging data into clean, analytics-ready data models.
-    *   It sources data from the staging tables in BigQuery and creates dimensional models, such as fact and dimension tables, in a separate BigQuery dataset. Key models include:
-        *   `fact_trip_schedule`: A fact table with details for each scheduled trip.
-        *   `dim_calendar_service`: A dimension table defining service availability for each date.
+
+3.  **Transformation/Mart Layer (dbt)**: A dbt project (`src/marts/dbt/carris_transformations`) transforms the staging data into a clean, well-structured dimensional model suitable for analytics.
+    *   **Staging Models**: Light transformations on top of the BigQuery staging tables.
+    *   **Dimension Models**: Creates dimension tables like `dim_stop`, `dim_trip`, `dim_line`, and `dim_calendar_service`.
+    *   **Fact Models**: Creates fact tables like `fact_trip_schedule` (aggregating trip metrics) and `fact_stop_event` (detailing every stop event for a trip).
 
 4.  **Orchestration & Deployment**
     *   **Airflow**: An Airflow DAG (`src/orchestration/grupo1-pipeline.py`) orchestrates the entire pipeline, triggering the Dataproc jobs in the correct sequence.
