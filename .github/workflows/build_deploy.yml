@@ -23,6 +23,10 @@ jobs:
       uses: google-github-actions/setup-gcloud@v2
       with:
         project_id: data-eng-dev-437916
+      
+    - name: Upload airflow dag with gsutil
+      run: |
+        gsutil cp src/orchestration/grupo1-pipeline.py gs://europe-west1-airflow-196fdba9-bucket/dags/grupo_1
     
     - name: Upload spark scripts with gsutil
       run: |
