@@ -1,0 +1,721 @@
+version: 1
+
+models:
+  - name: stg_periods
+    description: Staging table for periods, containing period identifiers and names.
+    columns:
+      - name: period_id
+        description: Unique identifier for the period.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: period_name
+        description: Name or description of the period.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: _source_file
+        description: Name of the source file from which the record was ingested.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was loaded into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: stg_shapes
+    description: Staging table for GTFS shapes, including coordinates, distances, and sequence information.
+    columns:
+      - name: shape_dist_traveled
+        description: Distance traveled along the shape, in kilometers or meters depending on GTFS feed.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: shape_id
+        description: Unique identifier for the shape.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: shape_pt_lat
+        description: Latitude of the shape point.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: shape_pt_lon
+        description: Longitude of the shape point.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: shape_pt_sequence
+        description: Sequence order of the point in the shape.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: _source_file
+        description: Name of the source file from which the record was ingested.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was loaded into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: stg_municipalities
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about municipalities, districts, and regions.
+    columns:
+      - name: municipality_id
+        description: Municipality identifier.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: municipality_name
+        description: Name of the municipality.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_prefix
+        description: Prefix of the municipality.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: district_id
+        description: District identifier.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: district_name
+        description: Name of the district.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: Region identifier.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Name of the region.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: _source_file
+        description: Name of the file where the record originated.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the record was ingested into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: stg_calendar_service
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about calendar and special service dates for each service_id as defined in the GTFS feed.
+    columns:
+      - name: date
+        description: The specific date of the service in YYYYMMDD format.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: service_date
+        description: The specific date of the service in date format.
+        data_type: date
+        data_tests:
+          - not_null
+      - name: day_type
+        description: Indicates the type of day (e.g., 1 - Weekday, 2 - Saturday, 3 - Sunday) as defined by the transit provider.
+        data_type: int64
+        data_tests:
+          - not_null     
+      - name: holiday
+        description: Flag indicating whether the date is a public holiday (1 for holiday, 0 otherwise).
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: exception_type
+        description: Indicates whether service is available on the date specified in the date field.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Unique identifier for each service.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: period
+        description: Unique identifier for each period or season.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: _source_file
+        description: Name of the file where the record originated.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was ingested.
+        data_type: timestamp
+        data_tests:
+          - not_null
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: stg_dates
+    description: Staging table for dates. Contains all calendar dates from the GTFS feed, including service IDs and operation dates.
+    columns:
+      - name: date
+        description: Date for the record in YYYYMMDD format.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: day_date
+        description: Date for the record in date format.
+        data_type: date
+        data_tests:
+          - not_null
+      - name: day_type
+        data_type: int64
+        description: Indicates the type of day (e.g., 1 - Weekday, 2 - Saturday, 3 - Sunday) as defined by the transit provider.
+        data_tests:
+          - not_null
+      - name: holiday
+        description: int64 flag indicating if the date is a holiday.
+        data_type: int64
+        data_tests:
+          - not_null      
+      - name: notes
+        description: Additional notes about the date.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: period
+        description: Period or calendar reference.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: _source_file
+        description: Name of the file where the record originated.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was loaded into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null        
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: stg_stop_times
+    description: Staging table for GTFS stop times, including scheduled times, types, distances, and identifiers.
+    columns:
+      - name: arrival_time
+        description: Scheduled arrival time at the stop (HH:MM:SS).
+        data_type: string
+        data_tests:
+          - not_null
+      - name: departure_time
+        description: Scheduled departure time from the stop (HH:MM:SS).
+        data_type: string
+        data_tests:
+          - not_null
+      - name: drop_off_type
+        description: Integer flag indicating drop-off type at the stop.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: pickup_type
+        description: Integer flag indicating pickup type at the stop.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: shape_dist_traveled
+        description: Distance traveled along the shape at this stop.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: stop_id
+        description: Unique identifier for the stop.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: stop_sequence
+        description: Order of the stop within the trip.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: timepoint
+        description: Indicates if the stop is a timepoint (exact or approximate).
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: trip_id
+        description: Unique identifier for the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: _source_file
+        description: Name of the source file from which the record was ingested.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was loaded into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: stg_trips
+    description: Staging table for GTFS trips, including trip identifiers, route information, service and patterns.
+    columns:
+      - name: calendar_desc
+        description: Description of the calendar or service period for the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: direction_id
+        description: Indicates the direction of travel for a trip.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: pattern_id
+        description: Identifier for the pattern associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: route_id
+        description: Unique identifier for the route associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Identifier for the set of dates the trip is valid for.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: shape_id
+        description: Identifier for the shape associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: trip_headsign
+        description: Text that appears on signage to identify the trip's destination to passengers.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: trip_id
+        description: Unique identifier for the trip.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: _source_file
+        description: Name of the source file from which the record was ingested.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was loaded into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: stg_routes
+    description: Staging table for GTFS routes, including lines, patterns, colors, types, and associated location identifiers.
+    columns:
+      - name: route_id
+        description: Unique identifier for the route.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: route_long_name
+        description: Full name of the route.
+        data_type: string
+      - name: route_short_name
+        description: Short name or code for the route.
+        data_type: string
+      - name: route_type
+        description: Numeric code indicating the type of route.
+        data_type: int64
+      - name: route_color
+        description: Color of the route, usually in hexadecimal.
+        data_type: string
+      - name: route_text_color
+        description: Text color for the route, usually in hexadecimal.
+        data_type: string
+      - name: line_id
+        description: Unique identifier for the line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: line_long_name
+        description: Full name of the line.
+        data_type: string
+      - name: line_short_name
+        description: Short name or code for the line.
+        data_type: string
+      - name: line_type
+        description: Numeric type of the line.
+        data_type: float64
+      - name: tts_name
+        description: Text-to-speech name for the line or route.
+        data_type: string
+      - name: agency_id
+        description: Identifier for the agency responsible for the route.
+        data_type: string
+      - name: circular
+        description: Indicates if the route or line is circular (1 for yes, 0 for no).
+        data_type: int64
+      - name: path_type
+        description: Numeric code indicating the type of path for the route.
+        data_type: int64
+      - name: school
+        description: School flag or school distance in meters (if float).
+        data_type: float64
+      - name: district_ids
+        description: Array of district identifiers associated with the route.
+        data_type: string
+      - name: facilities
+        description: Array of facility identifiers associated with the route.
+        data_type: string
+      - name: locality_ids
+        description: Array of locality identifiers associated with the route.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_ids
+        description: Array of municipality identifiers associated with the route.
+        data_type: string
+      - name: pattern_ids
+        description: Array of pattern identifiers associated with the route.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_ids
+        description: Array of region identifiers associated with the route.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: stop_ids
+        description: Array of stop identifiers associated with the route.
+        data_type: string
+      - name: _endpoint
+        description: Name of the endpoint source.
+        data_type: string
+      - name: _source_file
+        description: Name of the source file from which the record was ingested.
+        data_type: string
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the data was loaded into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: stg_stops
+    description: Staging table for GTFS stops, including location, accessibility, and facility attributes.
+    columns:
+      - name: district_id
+        description: District identifier.
+        data_type: string
+      - name: facilities
+        description: Identifier of facilities associated with the stop.
+        data_type: string
+      - name: line_ids
+        description: Associated line identifier.
+        data_type: string
+      - name: locality_id
+        description: Locality identifier.
+        data_type: string
+      - name: municipality_id
+        description: Municipality identifier.
+        data_type: string
+      - name: operational_status
+        description: Operational status of the stop.
+        data_type: string      
+      - name: pattern_ids
+        description: Associated pattern identifier.
+        data_type: string
+      - name: region_id
+        description: Region identifier.
+        data_type: string
+      - name: route_ids
+        description: Associated route identifier.
+        data_type: string
+      - name: wheelchair_boarding
+        description: Whether the stop supports wheelchair boarding.
+        data_type: boolean
+      - name: stop_id
+        description: Unique identifier for the stop.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: stop_name
+        description: Name of the stop.
+        data_type: string
+      - name: stop_short_name
+        description: Short name or code for the stop.
+        data_type: string
+      - name: stop_latitude
+        description: Latitude of the stop.
+        data_type: float64
+      - name: stop_longitude
+        description: Longitude of the stop.
+        data_type: float64
+      - name: areas
+        description: Areas served by the stop.
+        data_type: string
+      - name: region_name
+        description: Region name.
+        data_type: string
+      - name: district_name
+        description: District name.
+        data_type: string
+      - name: municipality_name
+        description: Municipality name.
+        data_type: string
+      - name: parish_id
+        description: Parish identifier.
+        data_type: float64
+      - name: parish_name
+        description: Parish identifier name.
+        data_type: float64
+      - name: locality
+        description: Locality name.
+        data_type: string
+      - name: jurisdiction
+        description: Jurisdiction information.
+        data_type: float64
+      - name: stop_code
+        description: Code for the stop.
+        data_type: int64
+      - name: tts_stop_name
+        description: Text-to-speech version of the stop name.
+        data_type: string
+      - name: platform_code
+        description: Platform code.
+        data_type: float64
+      - name: parent_station
+        description: Identifier for the parent station, if any.
+        data_type: float64
+      - name: location_type
+        description: Type of the stop location.
+        data_type: int64
+      - name: stop_url
+        description: URL with information about the stop.
+        data_type: string
+      - name: has_pole
+        description: Indicates if the stop has a pole.
+        data_type: string
+      - name: has_cover
+        description: Indicates if the stop has a cover.
+        data_type: string
+      - name: has_shelter
+        description: Indicates if the stop has a shelter.
+        data_type: string
+      - name: shelter_code
+        description: Code for the shelter.
+        data_type: string
+      - name: shelter_maintainer
+        description: Shelter maintainer.
+        data_type: string
+      - name: has_mupi
+        description: Indicates if the stop has a mupi.
+        data_type: string
+      - name: has_bench
+        description: Indicates if the stop has a bench.
+        data_type: string
+      - name: has_trash_bin
+        description: Indicates if the stop has a trash bin.
+        data_type: string
+      - name: has_lighting
+        description: Indicates if the stop has lighting.
+        data_type: string
+      - name: has_electricity
+        description: Indicates if the stop has electricity.
+        data_type: string
+      - name: docking_bay_type
+        description: Type of docking bay at the stop.
+        data_type: string
+      - name: last_infrastructure_maintenance
+        description: Last maintenance date for infrastructure.
+        data_type: float64
+      - name: last_infrastructure_check
+        description: Last check date for infrastructure.
+        data_type: float64
+      - name: has_flag
+        description: Indicates if the stop has a flag.
+        data_type: string
+      - name: flag_maintainer
+        description: Flag maintainer information.
+        data_type: float64
+      - name: has_pip_static
+        description: Indicates if the stop has static PIP.
+        data_type: string
+      - name: has_pip_audio
+        description: Indicates if the stop has audio PIP.
+        data_type: string
+      - name: pip_audio_code
+        description: Code for the audio PIP.
+        data_type: float64
+      - name: has_pip_realtime
+        description: Indicates if the stop has realtime PIP.
+        data_type: string
+      - name: pip_realtime_code
+        description: Code for the realtime PIP.
+        data_type: float64
+      - name: has_h2oa_signage
+        description: Indicates if the stop has H2OA signage.
+        data_type: string
+      - name: has_schedules
+        description: Indicates if the stop has schedules.
+        data_type: string
+      - name: has_tactile_schedules
+        description: Indicates if the stop has tactile schedules.
+        data_type: string
+      - name: has_network_map
+        description: Indicates if the stop has a network map.
+        data_type: string
+      - name: last_schedules_maintenance
+        description: Last maintenance date for schedules.
+        data_type: float64
+      - name: last_schedules_check
+        description: Last check date for schedules.
+        data_type: float64
+      - name: has_sidewalk
+        description: Indicates if the stop has a sidewalk.
+        data_type: string
+      - name: sidewalk_type
+        description: Type of sidewalk.
+        data_type: float64
+      - name: has_crossing
+        description: Indicates if the stop has a crossing.
+        data_type: string
+      - name: has_flat_access
+        description: Indicates if the stop has flat access.
+        data_type: string
+      - name: has_wide_access
+        description: Indicates if the stop has wide access.
+        data_type: string
+      - name: has_tactile_access
+        description: Indicates if the stop has tactile access.
+        data_type: string
+      - name: has_abusive_parking
+        description: Indicates if the stop has abusive parking.
+        data_type: string
+      - name: last_accessibility_maintenance
+        description: Last maintenance date for accessibility.
+        data_type: float64
+      - name: last_accessibility_check
+        description: Last check date for accessibility.
+        data_type: float64
+      - name: near_health_clinic
+        description: Indicates if the stop is near a health clinic.
+        data_type: int64
+      - name: near_hospital
+        description: Indicates if the stop is near a hospital.
+        data_type: int64
+      - name: near_university
+        description: Indicates if the stop is near a university.
+        data_type: int64
+      - name: near_school
+        description: Indicates if the stop is near a school.
+        data_type: int64
+      - name: near_police_station
+        description: Indicates if the stop is near a police station.
+        data_type: int64
+      - name: near_fire_station
+        description: Indicates if the stop is near a fire station.
+        data_type: int64
+      - name: near_shopping
+        description: Indicates if the stop is near a shopping mall.
+        data_type: int64
+      - name: near_historic_building
+        description: Indicates if the stop is near a historic building.
+        data_type: int64
+      - name: near_transit_office
+        description: Indicates if the stop is near a transit office.
+        data_type: int64
+      - name: near_beach
+        description: Indicates if the stop is near a beach.
+        data_type: int64
+      - name: subway
+        description: Indicates if the stop is near a subway station.
+        data_type: int64
+      - name: light_rail
+        description: Indicates if the stop is near a light rail station.
+        data_type: int64
+      - name: train
+        description: Indicates if the stop is near a train station.
+        data_type: int64
+      - name: boat
+        description: Indicates if the stop is near a boat terminal.
+        data_type: int64
+      - name: airport
+        description: Indicates if the stop is near an airport.
+        data_type: int64
+      - name: bike_sharing
+        description: Indicates if there is a bike sharing facility near the stop.
+        data_type: int64
+      - name: bike_parking
+        description: Indicates if there is a bike parking facility near the stop.
+        data_type: int64
+      - name: car_parking
+        description: Indicates if there is a car parking facility near the stop.
+        data_type: int64
+      - name: _source_file
+        description: Name of the source file from which the record was ingested.
+        data_type: string
+      - name: _endpoint
+        description: Endpoint source for the record.
+        data_type: string
+      - name: ingested_at
+        description: Timestamp when the data was loaded into the staging layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+      - name: partition_date
+        description: Partitioning field representing the data extraction date.
+        data_type: date
+        data_tests:
+          - not_null

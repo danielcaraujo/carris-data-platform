@@ -2,27 +2,29 @@
     "stop_id"
 ] %}
 
-with
-    stops_staging as (
-        select *
-        from `data-eng-dev-437916.applied_project_staging_grupo_1.staging_stops`
-    ),
+WITH stops_staging AS (
+    SELECT 
+        s.*,
+        row_number() OVER (PARTITION BY stop_id ORDER BY ingested_at) AS row_num
+    FROM {{ ref("stg_stops") }} s
+),
 
-    final as (
-        select
-            {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }}
-            as stop_key,
-            stop_id,
-            stop_name,
-            stop_latitude as latitude,
-            stop_longitude as longitude,
-            municipality_name as municipality,
-            region_name as region,
-            near_school,
-            current_timestamp as ingested_at
-        from stops_staging
-        where stop_id is not null
-    )
+final AS (
+    SELECT 
+        {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }} AS stop_key,
+        stop_id,
+        stop_name,
+        stop_latitude,
+        stop_longitude,
+        municipality_id,
+        municipality_name,
+        region_id,
+        region_name,
+        near_school,
+        current_timestamp() AS ingested_at
+    FROM stops_staging
+    WHERE row_num = 1
+)
 
-select *
-from final
+SELECT *
+FROM final

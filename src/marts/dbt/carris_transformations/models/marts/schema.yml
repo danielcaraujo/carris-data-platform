@@ -7,7 +7,7 @@ models:
       contract:
         enforced: true
     description: >
-      Fact table about trips.
+      Fact table containing scheduled trip information, including timing, distance, duration, stop count and other trip-level attributes for each scheduled service.
     columns:
       - name: trip_key
         description: Unique key identifier for each trip.
@@ -15,14 +15,14 @@ models:
         data_tests:
           - not_null
           - unique
-      - name: trip_date
-        description: The specific date of the service exception in YYYYMMDD format.
-        data_type: integer
-        data_tests:
-          - not_null
       - name: trip_id
         description: Unique identifier for each trip.
         data_type: string
+        data_tests:
+          - not_null
+      - name: trip_date
+        description: The specific date of the service in YYYY-MM-DD format.
+        data_type: date
         data_tests:
           - not_null
       - name: route_id
@@ -47,16 +47,46 @@ models:
           - not_null
       - name: direction_id
         description: Unique identifier for each direction.
-        data_type: integer
+        data_type: int64
         data_tests:
-          - not_null
+          - not_null    
       - name: trip_headsign
         description: Text displayed on the trip.
         data_type: string
         data_tests:
           - not_null
+      - name: departure_time
+        description: Scheduled departure time for the trip from the origin stop, in HH:MM:SS format.
+        data_type: time
+        data_tests:
+          - not_null
+      - name: arrival_time
+        description: Scheduled arrival time for the trip at the destination stop, in HH:MM:SS format.
+        data_type: time
+        data_tests:
+          - not_null
+      - name: is_peak
+        description: Indicates whether the trip occurs during peak hours (true) or off-peak hours (false).
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: distance_km
+        description: Total distance covered by the trip, in kilometers.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: duration_minutes
+        description: Total scheduled duration of the trip, in minutes.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: total_stops
+        description: Total number of stops served by the trip from start to end.
+        data_type: int64
+        data_tests:
+          - not_null
       - name: ingested_at
-        description: Timestamp when the data was ingested.
+        description: Timestamp indicating when the data was ingested into the data warehouse.
         data_type: timestamp
         data_tests:
           - not_null
@@ -65,7 +95,7 @@ models:
       contract:
         enforced: true
     description: >
-      Contains calendar exceptions and special service dates for each service_id as defined in the GTFS feed.
+      Contains calendar and special service dates for each service_id as defined in the GTFS feed.
     columns:
       - name: calendar_service_key
         description: Unique key identifier for each trip.
@@ -74,8 +104,13 @@ models:
           - not_null
           - unique
       - name: date
-        description: The specific date of the service exception in YYYYMMDD format.
-        data_type: integer
+        description: The specific date of the service in YYYYMMDD format.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: service_date
+        description: The specific date of the service in YYYY-MM-DD format.
+        data_type: date
         data_tests:
           - not_null
       - name: service_id
@@ -83,8 +118,282 @@ models:
         data_type: string
         data_tests:
           - not_null
+      - name: period_id
+        description: Unique identifier for each period or season.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: period_name
+        description: Name or description of the period.
+        data_type: string
+        data_tests:
+          - not_null
       - name: ingested_at
         description: Timestamp when the data was ingested.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: dim_stop
+    description: >
+      Dimension table for stops. Each row represents a unique stop, with descriptive attributes such as name, location, municipality, region, and whether it is near a school.
+    columns:
+      - name: stop_key
+        description: Surrogate key for the stop.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: stop_id
+        description: Unique identifier of the stop from the source system.
+        data_type: int64
+        data_tests:
+          - unique
+          - not_null
+      - name: stop_name
+        description: Name of the stop.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: stop_latitude
+        description: Latitude of the stop.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: stop_longitude
+        description: Longitude of the stop.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: municipality_id
+        description: Municipality identifier where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_name
+        description: Municipality name where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: Region identifier where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Region name where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: near_school
+        description: Boolean flag indicating if the stop is near a school.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: fact_stop_event
+    description: Fact table for stop events, combining stop, line, route, calendar, and event details.
+    columns:
+      - name: stop_event_key
+        description: Surrogate key for the stop event.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: stop_event_date
+        description: Date of the stop event.
+        data_type: date
+        data_tests:
+          - not_null
+      - name: stop_id
+        description: Unique identifier of the stop.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: stop_name
+        description: Name of the stop.
+        data_type: string
+      - name: municipality_id
+        description: Municipality identifier for the stop.
+        data_type: string
+      - name: municipality_name
+        description: Name of the municipality for the stop.
+        data_type: string
+      - name: region_id
+        description: Region identifier for the stop.
+        data_type: string
+      - name: region_name
+        description: Name of the region for the stop.
+        data_type: string
+      - name: district_id
+        description: District identifier for the stop.
+        data_type: int64
+      - name: district_name
+        description: Name of the district for the stop.
+        data_type: string
+      - name: line_id
+        description: Identifier for the line associated with the event.
+        data_type: string
+      - name: line_long_name
+        description: Long name of the line.
+        data_type: string
+      - name: line_short_name
+        description: Short name or code for the line.
+        data_type: string
+      - name: route_id
+        description: Identifier for the route associated with the event.
+        data_type: string
+      - name: route_long_name
+        description: Long name of the route.
+        data_type: string
+      - name: route_short_name
+        description: Short name or code for the route.
+        data_type: string
+      - name: trip_id
+        description: Unique identifier for the trip.
+        data_type: string
+      - name: stop_sequence
+        description: Sequence of the stop within the trip.
+        data_type: int64
+      - name: pickup_type
+        description: Pickup type for the stop event.
+        data_type: int64
+      - name: drop_off_type
+        description: Drop-off type for the stop event.
+        data_type: int64
+      - name: is_near_school
+        description: Boolean flag indicating if the stop is near a school.
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: is_holiday
+        description: Boolean flag indicating if the event date is a holiday.
+        data_type: boolean
+      - name: is_weekend
+        description: Boolean flag indicating if the event date is a weekend.
+        data_type: boolean
+      - name: serves_school_route
+        description: Boolean flag indicating if the event serves a school route.
+        data_type: boolean
+      - name: stop_event_count
+        description: Total number of stop events for this record.
+        data_type: int64
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: dim_trip
+    description: Dimension table for trips, including trip identifiers, route, service, and shape information.
+    columns:
+      - name: trip_key
+        description: Surrogate key for the trip.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: trip_id
+        description: Unique identifier for the trip from the source system.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: direction
+        description: Indicates the direction of travel for the trip (usually 0 or 1).
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: route_id
+        description: Identifier for the route associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Identifier for the service/calendar associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: trip_headsign
+        description: Text shown to passengers to indicate the destination of the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: pattern_id
+        description: Identifier for the pattern associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: shape_id
+        description: Identifier for the shape associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: dim_line
+    description: Dimension table for lines and their associated routes. Each row represents a unique combination of line and route.
+    columns:
+      - name: route_key
+        description: Surrogate key for the route.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: route_id
+        description: Unique identifier for the route associated with the line.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: route_long_name
+        description: Full name of the route.
+        data_type: string
+      - name: route_short_name
+        description: Short code or abbreviation for the route.
+        data_type: string
+      - name: route_type
+        description: Numeric code indicating the type of route.
+        data_type: int64
+      - name: route_color
+        description: Hexadecimal color code for the route.
+        data_type: string
+      - name: route_text_color
+        description: Hexadecimal color code for the text on the route.
+        data_type: string
+      - name: line_id
+        description: Unique identifier for the line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: line_long_name
+        description: Full name of the line.
+        data_type: string
+      - name: line_short_name
+        description: Short code or abbreviation for the line.
+        data_type: string
+      - name: line_type
+        description: Numeric code indicating the type of line.
+        data_type: float64
+      - name: agency_id
+        description: Identifier for the agency responsible for the line.
+        data_type: string
+      - name: tts_name
+        description: Text-to-speech name for the line.
+        data_type: string
+      - name: circular
+        description: Indicates if the line is circular (1 for yes, 0 for no).
+        data_type: int64
+      - name: school
+        description: Indicates if the line serves a school or the distance to a school.
+        data_type: float64
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
         data_type: timestamp
         data_tests:
           - not_null

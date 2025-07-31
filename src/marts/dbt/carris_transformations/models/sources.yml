@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 sources:
   - name: carris_transformations
@@ -26,6 +26,8 @@ sources:
             description: Text displayed on the trip.
           - name: _source_file
             description: Represents the source of the information.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the data was ingested.
       - name: staging_calendar_dates
@@ -45,6 +47,8 @@ sources:
             description: Identifier for the service schedule to which the exception applies.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_dates
@@ -62,6 +66,8 @@ sources:
             description: Reference to the specific period or season in which the date falls.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_periods
@@ -73,6 +79,8 @@ sources:
             description: Name or description of the period.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_municipalities
@@ -94,6 +102,8 @@ sources:
             description: Name of the region to which the municipality belongs.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_shapes
@@ -111,6 +121,8 @@ sources:
             description: Sequence order of the point in the shape path.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_stop_times
@@ -136,59 +148,100 @@ sources:
             description: Identifier for the trip associated with this stop time.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
-      - name: staging_stops
-        description: Contains all public transport stops, with full location, accessibility, facilities, and metadata.
+      - name: staging_routes_converted
+        description: Table containing enriched route data from endpoint and GTFS, including all core attributes, relationships, and metadata.
+        columns:
+          - name: district_ids
+            description: Identifier of districts that the route passes through.
+          - name: facilities
+            description: Identifier for facilities related to the route.
+          - name: line_id
+            description: Identifier of the parent line for the route.
+          - name: locality_ids
+            description: Identifier of localities that the route passes through.
+          - name: municipality_id
+            description: Identifier of the municipalities that the route passes through.
+          - name: pattern_ids
+            description: Identifier of patterns associated with the route.
+          - name: region_ids
+            description: Identifier of regions that the route passes through.
+          - name: stop_ids
+            description: Identifier of stops associated with this route.
+          - name: tts_name
+            description: Text-to-speech friendly name for the route or line.
+          - name: _endpoint
+            description: Source API endpoint for the data.
+          - name: agency_id
+            description: Identifier of the agency responsible for the route.
+          - name: circular
+            description: Flag indicating if the route or line is circular.
+          - name: line_long_name
+            description: Full descriptive name of the line.
+          - name: line_short_name
+            description: Short code or abbreviation for the line.
+          - name: line_type
+            description: Type or classification of the line.
+          - name: path_type
+            description: Type or classification of the route path.
+          - name: route_color
+            description: Color code for displaying the route.
+          - name: route_id
+            description: Unique identifier for the route.
+          - name: route_long_name
+            description: Full descriptive name of the route.
+          - name: route_short_name
+            description: Short code or abbreviation for the route.
+          - name: route_text_color
+            description: Text color code for route labels.
+          - name: route_type
+            description: Type of route (bus, tram, etc).
+          - name: school
+            description: Flag indicating if the route serves a school.
+          - name: _source_file
+            description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
+          - name: ingested_at
+            description: Timestamp when the record was ingested into staging.
+      - name: staging_stops_converted
+        description: Table containing enriched and exploded stop data from endpoint and GTFS, including all attributes, spatial info, accessibility, and relationships.
         columns:
           - name: district_id
-            description: Identifier for the district where the stop is located.
+            description: Identifier of the district where the stop is located.
           - name: facilities
-            description: List of facilities available at the stop.
-          - name: id
-            description: Unique identifier for the stop.
-          - name: lat
-            description: Latitude coordinate of the stop.
+            description: Identifier of facilities associated with the stop.
           - name: line_ids
-            description: List of line IDs that serve this stop.
+            description: Identifier of lines that serves this stop.
           - name: locality_id
-            description: Identifier for the locality of the stop.
-          - name: lon
-            description: Longitude coordinate of the stop.
-          - name: long_name
-            description: Full name of the stop.
+            description: Identifier of the locality where the stop is located.
           - name: municipality_id
-            description: Identifier for the municipality of the stop.
+            description: Identifier of the municipality where the stop is located.
           - name: operational_status
-            description: Operational status of the stop (e.g., active, inactive).
+            description: Operational status of the stop (e.g. active, inactive).
           - name: pattern_ids
-            description: List of pattern IDs that serve this stop.
+            description: Identifier of patterns that serves this stop.
           - name: region_id
-            description: Identifier for the region where the stop is located.
+            description: Identifier of the region where the stop is located.
           - name: route_ids
-            description: List of route IDs that serve this stop.
-          - name: short_name
-            description: Short name or code for the stop.
-          - name: tts_name
-            description: Text-to-speech friendly name of the stop.
+            description: Identifier of routes that serves this stop.
           - name: wheelchair_boarding
-            description: Indicates whether the stop is accessible for wheelchair users.
+            description: Indicates wheelchair accessibility (0=unknown, 1=accessible, 2=not accessible).
           - name: _endpoint
-            description: API endpoint or data source for this stop.
-          - name: ingested_at
-            description: Timestamp when the record was ingested into the staging area.
+            description: Source API endpoint for the stop.
           - name: stop_id
-            description: Alternative or duplicate identifier for the stop.
+            description: Unique identifier for the stop.
           - name: stop_name
             description: Name of the stop.
-          - name: stop_name_new
-            description: Alternative or updated name of the stop.
           - name: stop_short_name
-            description: Shortened version of the stop name.
-          - name: stop_lat
-            description: Latitude coordinate (possibly duplicate of lat).
-          - name: stop_lon
-            description: Longitude coordinate (possibly duplicate of lon).
+            description: Shortened or abbreviated name of the stop.
+          - name: stop_latitude
+            description: Latitude coordinate of the stop.
+          - name: stop_longitude
+            description: Longitude coordinate of the stop.
           - name: areas
             description: List or description of areas associated with the stop.
           - name: region_name
@@ -198,21 +251,21 @@ sources:
           - name: municipality_name
             description: Name of the municipality where the stop is located.
           - name: parish_id
-            description: Identifier for the parish of the stop.
+            description: Identifier of the parish where the stop is located.
           - name: parish_name
-            description: Name of the parish of the stop.
+            description: Name of the parish where the stop is located.
           - name: locality
-            description: Name of the locality of the stop.
+            description: Name of the locality where the stop is located.
           - name: jurisdiction
             description: Jurisdiction code or area for the stop.
           - name: stop_code
-            description: Code or identifier assigned to the stop.
+            description: GTFS code or identifier assigned to the stop.
           - name: tts_stop_name
             description: Text-to-speech name for the stop.
           - name: platform_code
             description: Code of the platform at the stop, if applicable.
           - name: parent_station
-            description: Identifier for the parent station, if this stop is part of a larger station.
+            description: Identifier for the parent station, if part of a larger station.
           - name: location_type
             description: GTFS location type (0=Stop, 1=Station, etc).
           - name: stop_url
@@ -228,7 +281,7 @@ sources:
           - name: shelter_maintainer
             description: Entity responsible for maintaining the shelter.
           - name: has_mupi
-            description: Indicates if the stop has a MUPI (public information display).
+            description: Indicates if the stop has a MUPI (public info display).
           - name: has_bench
             description: Indicates if the stop has a bench.
           - name: has_trash_bin
@@ -329,53 +382,7 @@ sources:
             description: Indicates if car parking is available at the stop.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
-      - name: staging_routes
-        description: Contains detailed information about transit routes, including their attributes, associated lines, patterns, colors, and administrative regions.
-        columns:
-          - name: color
-            description: Color code associated with the route. (RENAME route_color)
-          - name: district_ids
-            description: List of district IDs that the route passes through. (COLOCAR DISTRICT_ID)
-          - name: facilities
-            description: List of facilities available along the route (for example, school access). (COLOCAR FACILITY_ID)
-          - name: id
-            description: Unique identifier for the route. (APAGAR)
-          - name: line_id
-            description: Identifier for the line to which the route belongs.
-          - name: locality_ids
-            description: List of locality IDs the route serves. (COLOCAR locality_id)
-          - name: long_name
-            description: Full descriptive name of the route. (APAGAR)
-          - name: municipality_ids
-            description: List of municipality IDs the route passes through. (COLOCAR municipality_id)
-          - name: pattern_ids
-            description: List of pattern IDs associated with this route. (COLOCAR pattern_id)
-          - name: region_ids
-            description: List of region IDs the route passes through. (COLOCAR region_id)
-          - name: short_name
-            description: Short name or code for the route. (APAGAR)
-          - name: stop_ids
-            description: List of stop IDs served by this route. (COLOCAR STOP_ID)
-          - name: text_color
-            description: Text color code to be used on route displays. (APAGAR)
-          - name: tts_name
-            description: Text-to-speech version of the route name.
-          - name: line_type
-            description: Type or classification of the line, if available.
-          - name: path_type
-            description: Type or classification of the route path.
-          - name: route_color
-            description: Additional color code for the route, if provided.
-          - name: route_id
-            description: Unique identifier for the route (may duplicate id).
-          - name: route_long_name
-            description: Long descriptive name for the route.
-          - name: route_short_name
-            description: Short code or abbreviation for the route.
-          - name: route_text_color
-            description: Text color code for route labels.
-          - name: route_type
-            description: Type of route (integer code, e.g. bus, tram, etc).
-          - name: school
-            description: Flag indicating if the route serves schools.
-          - name: _source_file
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
+          - name: ingested_at
+            description: Timestamp when the record was ingested into staging.

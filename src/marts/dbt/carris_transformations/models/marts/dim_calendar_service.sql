@@ -1,28 +1,39 @@
 {% set surrogate_key_columns = [
     "d.date",
-    "ci.service_id"
+    "ci.service_id",
+    "pi.period_id"
 ] %}
 
-with
-    dates as (
-        select *
-        FROM {{ source ('carris_transformations','staging_dates') }}
+WITH dates AS (
+        SELECT *
+        FROM {{ ref("stg_dates") }} d
     ),
-    calendar_info as (
-        select *
-        FROM {{ source ('carris_transformations','staging_calendar_dates') }}
+
+    calendar_info AS (
+        SELECT *
+        FROM {{ ref("stg_calendar_service") }} cs
     ),
-    final as (
-        select distinct
-            {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }}
-            as calendar_service_key,
+
+    period_info AS (
+        SELECT *
+        FROM {{ ref("stg_periods") }} p
+    ),
+
+    final AS (
+        SELECT
+            {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }} AS calendar_service_key,
+            ci.service_date,
             d.date,
             ci.service_id,
-            current_timestamp as ingested_at
-        from dates d 
-        join calendar_info ci
-        on d.date = ci.date
+            pi.period_id,
+            pi.period_name,
+            current_timestamp() AS ingested_at
+        FROM dates d 
+        JOIN calendar_info ci
+        ON d.date = ci.date
+        JOIN period_info pi
+        ON d.period = pi.period_id
     )
 
-select *
-from final
+SELECT *
+FROM final
