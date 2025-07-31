@@ -1,3 +1,5 @@
+/*Quais são as linhas que param em cada paragem?
+Top 10 paragens com mais linhas*/
 SELECT 
     stop_id,
     stop_name,

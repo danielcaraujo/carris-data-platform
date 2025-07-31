@@ -1,3 +1,4 @@
+/*Quanto tempo demora em média uma viagem?*/
 SELECT 
     ROUND(AVG(duration_minutes), 2) AS avg_trip_duration_minutes,
     ROUND(MIN(duration_minutes), 2) AS min_duration_minutes,

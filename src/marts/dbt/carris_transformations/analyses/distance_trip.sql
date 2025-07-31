@@ -1,3 +1,4 @@
+/*Qual é a distância total percorrida durante cada viagem?*/
 SELECT 
     trip_id,
     trip_date,

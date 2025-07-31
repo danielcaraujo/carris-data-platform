@@ -1,3 +1,4 @@
+/*Qual é o número total de viagens agendadas por dia?*/
 SELECT 
     trip_date,
     COUNT(*) AS total_trips_scheduled

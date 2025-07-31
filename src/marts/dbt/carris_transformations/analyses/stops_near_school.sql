@@ -1,3 +1,4 @@
+/*Quais são as paragens perto de uma escola?*/
 SELECT 
     stop_id,
     stop_name,
