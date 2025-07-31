@@ -8,7 +8,6 @@ from googleapiclient.discovery import build
 from airflow.operators.bash import BashOperator
 from airflow.models import Variable
 
-PROJECT_ID = 'data-eng-dev-437916'
 REGION = 'europe-west1'
 RAW_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/extract_carris.py'
 STAGING_LOAD_SCRIPT_PATH = 'gs://applied-project/grupo-1/scripts/load_to_bigquery.py'
@@ -44,7 +43,7 @@ with models.DAG(
 
     raw_layer_gcs_bucket = DataprocCreateBatchOperator(
         task_id='raw_layer_gcs_bucket',
-        project_id=PROJECT_ID,
+        project_id=project_id,
         region=REGION,
         batch_id=f"spark-raw-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         batch=create_batch_config(RAW_SCRIPT_PATH),
@@ -52,7 +51,7 @@ with models.DAG(
 
     load_to_bigquery = DataprocCreateBatchOperator(
         task_id='staging_load_bigquery',
-        project_id=PROJECT_ID,
+        project_id=project_id,
         region=REGION,
         batch_id=f"spark-staging-load-bigquery{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         batch=create_batch_config(STAGING_LOAD_SCRIPT_PATH),
@@ -60,7 +59,7 @@ with models.DAG(
 
     merge_gfts_endpoint = DataprocCreateBatchOperator(
         task_id='staging_merge_gfts_endpoint',
-        project_id=PROJECT_ID,
+        project_id=project_id,
         region=REGION,
         batch_id=f"spark-staging-merge-gfts-endpoint{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         batch=create_batch_config(STAGING_MERGE_SCRIPT_PATH),
@@ -68,7 +67,7 @@ with models.DAG(
 
     convert_array_columns = DataprocCreateBatchOperator(
         task_id='staging_explode_array_columns',
-        project_id=PROJECT_ID,
+        project_id=project_id,
         region=REGION,
         batch_id=f"spark-staging-convert-arraycolumns{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         batch=create_batch_config(STAGING_CONVERT_ARRAY_SCRIPT_PATH),
