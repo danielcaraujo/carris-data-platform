@@ -2,22 +2,30 @@
 set -e
 
 # Git repos url
-REPO_URL=${REPO_URL:-"https://github.com/danielcaraujo/carris-data-platform/tree/main"}
+REPO_URL=${REPO_URL:-"https://github.com/danielcaraujo/carris-data-platform.git"}
 
 # Folder where is dbt code
-APP_DIR="/src/marts/dbt/carris_transformations"
+APP_DIR="./carris-data-platform/src/marts/dbt/carris_transformations"
 
-# Se a pasta existe, faz pull, senão clona
+# Check if projectID env var is defined
+if [ -z "$PROJECT_ID" ]; then
+  echo "Error: PROJECT_ID env var is not defined."
+  exit 1
+fi
+
+echo "Using PROJECT_ID: $PROJECT_ID"
+
+# If the directory exists, pull the latest changes; otherwise, clone the repository
 if [ -d "$APP_DIR" ]; then
-  echo "Repositório já existe, fazendo git pull..."
+  echo "Updating existing repository..."
   cd $APP_DIR
   git pull
 else
-  echo "Clonando repositório..."
-  git clone $REPO_URL $APP_DIR
+  echo "Cloning repository..."
+  git clone $REPO_URL
   cd $APP_DIR
 fi
 
 dbt deps
 
-dbt run
+dbt build --vars "{PROJECT_ID: '$PROJECT_ID'}"

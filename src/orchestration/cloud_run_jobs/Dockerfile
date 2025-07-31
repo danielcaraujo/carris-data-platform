@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Install dbt (example with dbt-core; change if you use dbt-postgres, dbt-bigquery, etc.)
-RUN pip install dbt-core
+RUN pip install dbt-bigquery
 
 # Environment variable to disable output buffering (better logging)
 ENV PYTHONUNBUFFERED=1
