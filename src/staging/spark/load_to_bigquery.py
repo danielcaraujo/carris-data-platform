@@ -307,7 +307,7 @@ def clean_dataframe(df):
 
 
 class BucketToBigQueryTask:
-    """Pipeline class for copying data from GCS bucket to BigQuery staging tables"""
+    """Task class for copying data from GCS bucket to BigQuery staging tables"""
 
     def __init__(self, project_id, dataset_id, bucket_name):
         self.project_id = project_id
@@ -450,23 +450,6 @@ class BucketToBigQueryTask:
             self.spark.stop()
 
 
-# Usage example for the class-based approach:
-"""
-task = BucketToBigQueryTask(
-    project_id="your-project-id",
-    dataset_id="your-dataset-id",
-    bucket_name="your-bucket-name"
-)
-
-tables = [{
-  "name":"lines",
-  "sources": ["endpoint"],
-}, {
-  "name":"stops",
-  "sources": ["endpoint", "gtfs"],
-}]
-task.run(tables, write_mode="overwrite")
-"""
 task = BucketToBigQueryTask(
     project_id="data-eng-dev-437916",
     dataset_id="applied_project_staging_grupo_1",

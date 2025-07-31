@@ -58,6 +58,14 @@ class MergeGTFSAndEndpointTablesTask:
     def process_table(
         self, table_name, columns_to_exclude, columns_to_rename, write_mode="overwrite"
     ):
+        """
+        Process a BigQuery table by reading it and merging GTFS and endpoint data.
+        Args:
+            table_name: Name of the table to process
+            columns_to_exclude: List of columns to exclude from the final DataFrame
+            columns_to_rename: List of dictionaries with old and new column names
+            write_mode: BigQuery write mode (overwrite, append)
+        """
         gtfs_df = (
             self.spark.read.format("bigquery")
             .option(
@@ -118,23 +126,6 @@ class MergeGTFSAndEndpointTablesTask:
         finally:
             self.spark.stop()
 
-
-# Usage example for the class-based approach:
-"""
-task = MergeGTFSAndEndpointTablesTask(
-    project_id="your-project-id",
-    dataset_id="your-dataset-id",
-)
-
-tables = [{
-  "name": "routes",
-  "columns_to_exclude": []
-}, {
-  "name": "stops",
-  "columns_to_exclude": []
-}]
-task.run(tables, write_mode="overwrite")
-"""
 task = MergeGTFSAndEndpointTablesTask(
     project_id="data-eng-dev-437916",
     dataset_id="applied_project_staging_grupo_1",
