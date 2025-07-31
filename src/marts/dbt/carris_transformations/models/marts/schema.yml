@@ -47,7 +47,7 @@ models:
           - not_null
       - name: direction_id
         description: Unique identifier for each direction.
-        data_type: integer
+        data_type: int64
         data_tests:
           - not_null    
       - name: trip_headsign
@@ -82,7 +82,7 @@ models:
           - not_null
       - name: total_stops
         description: Total number of stops served by the trip from start to end.
-        data_type: integer
+        data_type: int64
         data_tests:
           - not_null
       - name: ingested_at
@@ -105,7 +105,7 @@ models:
           - unique
       - name: date
         description: The specific date of the service in YYYYMMDD format.
-        data_type: integer
+        data_type: int64
         data_tests:
           - not_null
       - name: service_date
@@ -120,7 +120,7 @@ models:
           - not_null
       - name: period_id
         description: Unique identifier for each period or season.
-        data_type: integer
+        data_type: int64
         data_tests:
           - not_null
       - name: period_name
@@ -130,6 +130,159 @@ models:
           - not_null
       - name: ingested_at
         description: Timestamp when the data was ingested.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: dim_stop
+    description: >
+      Dimension table for stops. Each row represents a unique stop, with descriptive attributes such as name, location, municipality, region, and whether it is near a school.
+    columns:
+      - name: stop_key
+        description: Surrogate key for the stop.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: stop_id
+        description: Unique identifier of the stop from the source system.
+        data_type: int64
+        data_tests:
+          - unique
+          - not_null
+      - name: stop_name
+        description: Name of the stop.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: stop_latitude
+        description: Latitude of the stop.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: stop_longitude
+        description: Longitude of the stop.
+        data_type: float64
+        data_tests:
+          - not_null
+      - name: municipality_id
+        description: Municipality identifier where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_name
+        description: Municipality name where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: Region identifier where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Region name where the stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: near_school
+        description: Boolean flag indicating if the stop is near a school.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: fact_stop_event
+    description: Fact table for stop events, combining stop, line, route, calendar, and event details.
+    columns:
+      - name: stop_event_key
+        description: Surrogate key for the stop event.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: stop_event_date
+        description: Date of the stop event.
+        data_type: date
+        data_tests:
+          - not_null
+      - name: stop_id
+        description: Unique identifier of the stop.
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: stop_name
+        description: Name of the stop.
+        data_type: string
+      - name: municipality_id
+        description: Municipality identifier for the stop.
+        data_type: string
+      - name: municipality_name
+        description: Name of the municipality for the stop.
+        data_type: string
+      - name: region_id
+        description: Region identifier for the stop.
+        data_type: string
+      - name: region_name
+        description: Name of the region for the stop.
+        data_type: string
+      - name: district_id
+        description: District identifier for the stop.
+        data_type: int64
+      - name: district_name
+        description: Name of the district for the stop.
+        data_type: string
+      - name: line_id
+        description: Identifier for the line associated with the event.
+        data_type: string
+      - name: line_long_name
+        description: Long name of the line.
+        data_type: string
+      - name: line_short_name
+        description: Short name or code for the line.
+        data_type: string
+      - name: route_id
+        description: Identifier for the route associated with the event.
+        data_type: string
+      - name: route_long_name
+        description: Long name of the route.
+        data_type: string
+      - name: route_short_name
+        description: Short name or code for the route.
+        data_type: string
+      - name: trip_id
+        description: Unique identifier for the trip.
+        data_type: string
+      - name: stop_sequence
+        description: Sequence of the stop within the trip.
+        data_type: int64
+      - name: pickup_type
+        description: Pickup type for the stop event.
+        data_type: int64
+      - name: drop_off_type
+        description: Drop-off type for the stop event.
+        data_type: int64
+      - name: is_near_school
+        description: Boolean flag indicating if the stop is near a school.
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: is_holiday
+        description: Boolean flag indicating if the event date is a holiday.
+        data_type: boolean
+      - name: is_weekend
+        description: Boolean flag indicating if the event date is a weekend.
+        data_type: boolean
+      - name: serves_school_route
+        description: Boolean flag indicating if the event serves a school route.
+        data_type: boolean
+      - name: stop_event_count
+        description: Total number of stop events for this record.
+        data_type: int64
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
         data_type: timestamp
         data_tests:
           - not_null

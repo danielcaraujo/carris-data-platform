@@ -1,3 +1,5 @@
+WITH latest_partition AS {{ max_partition_date('carris_transformations','staging_routes_converted') }}
+
 SELECT 
     route_id,
     route_long_name,
@@ -13,18 +15,17 @@ SELECT
     agency_id,
     circular,
     path_type,
-    pattern_id,
-    facility_id,
-    CASE WHEN school = 1 AND facility_id != 'school' then 0
-         WHEN school = 0 AND facility_id = 'school' then 1
-         WHEN school = 1 AND facility_id = 'school' then 1
-    ELSE 0 END AS school,
-    district_id,
-    locality_id,
-    municipality_id,
-    region_id,
-    replace(stop_id, 'NA', 'N/A') AS stop_id,
+    school,
+    district_ids,
+    facilities,
+    locality_ids,
+    municipality_ids,
+    pattern_ids,
+    region_ids,
+    stop_ids,
     _endpoint,
     _source_file,
+    r.partition_date,
     ingested_at
-FROM {{ source('carris_transformations', 'staging_routes_exploded') }}
+FROM {{ source('carris_transformations', 'staging_routes_converted') }} r
+INNER JOIN latest_partition lp ON r.partition_date = lp.partition_date

@@ -64,3 +64,14 @@ macros:
       - name: partition_type
         description: Data type for the partition field (default 'date').
         type: string
+  - name: max_partition_date
+    description: >
+      Returns a SQL subquery that calculates the maximum partition_date from a referenced staging table.
+      Useful for filtering only the most recent batch of data in staging models.
+    arguments:
+      - name: source_name
+        type: string
+        description: The name of the source to be referenced (e.g., 'carris_transformations').
+      - name: ref_table
+        type: string
+        description: The name of the staging model to be referenced (e.g., 'stg_trips').

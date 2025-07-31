@@ -4,19 +4,21 @@
     "pi.period_id"
 ] %}
 
-WITH
-    dates AS (
+WITH dates AS (
         SELECT *
-        FROM {{ ref("stg_dates") }}
+        FROM {{ ref("stg_dates") }} d
     ),
+
     calendar_info AS (
         SELECT *
-        FROM {{ ref("stg_calendar_service") }}
+        FROM {{ ref("stg_calendar_service") }} cs
     ),
+
     period_info AS (
         SELECT *
-        FROM {{ ref("stg_periods") }}
+        FROM {{ ref("stg_periods") }} p
     ),
+
     final AS (
         SELECT
             {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }} AS calendar_service_key,
@@ -25,7 +27,7 @@ WITH
             ci.service_id,
             pi.period_id,
             pi.period_name,
-            current_timestamp AS ingested_at
+            current_timestamp() AS ingested_at
         FROM dates d 
         JOIN calendar_info ci
         ON d.date = ci.date

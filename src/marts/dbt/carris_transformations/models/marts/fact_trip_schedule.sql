@@ -6,8 +6,8 @@
 ] %}
 
 WITH trips AS (
-    SELECT * 
-    FROM {{ ref("stg_trips") }}
+    SELECT t.* 
+    FROM {{ ref("stg_trips") }} t
 ),
 
 calendar_service AS (
@@ -17,7 +17,7 @@ calendar_service AS (
         day_type,
         exception_type,
         holiday
-    FROM {{ ref("stg_calendar_service") }}
+    FROM {{ ref("stg_calendar_service") }} cs
 ),
 
 trips_with_dates AS (

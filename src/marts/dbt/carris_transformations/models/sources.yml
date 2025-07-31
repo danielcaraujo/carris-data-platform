@@ -26,6 +26,8 @@ sources:
             description: Text displayed on the trip.
           - name: _source_file
             description: Represents the source of the information.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the data was ingested.
       - name: staging_calendar_dates
@@ -45,6 +47,8 @@ sources:
             description: Identifier for the service schedule to which the exception applies.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_dates
@@ -62,6 +66,8 @@ sources:
             description: Reference to the specific period or season in which the date falls.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_periods
@@ -73,6 +79,8 @@ sources:
             description: Name or description of the period.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_municipalities
@@ -94,6 +102,8 @@ sources:
             description: Name of the region to which the municipality belongs.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_shapes
@@ -111,6 +121,8 @@ sources:
             description: Sequence order of the point in the shape path.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
       - name: staging_stop_times
@@ -136,19 +148,33 @@ sources:
             description: Identifier for the trip associated with this stop time.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
           - name: ingested_at
             description: Timestamp when the record was ingested into the staging area.
-      - name: staging_routes_exploded
-        description: Table containing enriched and exploded route data from endpoint and GTFS, including all core attributes, relationships, and metadata.
+      - name: staging_routes_converted
+        description: Table containing enriched route data from endpoint and GTFS, including all core attributes, relationships, and metadata.
         columns:
+          - name: district_ids
+            description: Identifier of districts that the route passes through.
+          - name: facilities
+            description: Identifier for facilities related to the route.
           - name: line_id
             description: Identifier of the parent line for the route.
+          - name: locality_ids
+            description: Identifier of localities that the route passes through.
+          - name: municipality_id
+            description: Identifier of the municipalities that the route passes through.
+          - name: pattern_ids
+            description: Identifier of patterns associated with the route.
+          - name: region_ids
+            description: Identifier of regions that the route passes through.
+          - name: stop_ids
+            description: Identifier of stops associated with this route.
           - name: tts_name
             description: Text-to-speech friendly name for the route or line.
           - name: _endpoint
             description: Source API endpoint for the data.
-          - name: ingested_at
-            description: Timestamp when the record was ingested into staging.
           - name: agency_id
             description: Identifier of the agency responsible for the route.
           - name: circular
@@ -177,39 +203,35 @@ sources:
             description: Flag indicating if the route serves a school.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
-          - name: pattern_id
-            description: Identifier of the pattern associated with the route.
-          - name: facility_id
-            description: Identifier for the facility related to the route.
-          - name: district_id
-            description: Identifier of the district that the route passes through.
-          - name: locality_id
-            description: Identifier of the locality that the route passes through.
-          - name: municipality_id
-            description: Identifier of the municipality that the route passes through.
-          - name: region_id
-            description: Identifier of the region that the route passes through.
-          - name: stop_id
-            description: Identifier of a stop associated with this route.
-      - name: staging_stops_exploded
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
+          - name: ingested_at
+            description: Timestamp when the record was ingested into staging.
+      - name: staging_stops_converted
         description: Table containing enriched and exploded stop data from endpoint and GTFS, including all attributes, spatial info, accessibility, and relationships.
         columns:
           - name: district_id
             description: Identifier of the district where the stop is located.
+          - name: facilities
+            description: Identifier of facilities associated with the stop.
+          - name: line_ids
+            description: Identifier of lines that serves this stop.
           - name: locality_id
             description: Identifier of the locality where the stop is located.
           - name: municipality_id
             description: Identifier of the municipality where the stop is located.
           - name: operational_status
             description: Operational status of the stop (e.g. active, inactive).
+          - name: pattern_ids
+            description: Identifier of patterns that serves this stop.
           - name: region_id
             description: Identifier of the region where the stop is located.
+          - name: route_ids
+            description: Identifier of routes that serves this stop.
           - name: wheelchair_boarding
             description: Indicates wheelchair accessibility (0=unknown, 1=accessible, 2=not accessible).
           - name: _endpoint
             description: Source API endpoint for the stop.
-          - name: ingested_at
-            description: Timestamp when the record was ingested into staging.
           - name: stop_id
             description: Unique identifier for the stop.
           - name: stop_name
@@ -360,11 +382,7 @@ sources:
             description: Indicates if car parking is available at the stop.
           - name: _source_file
             description: Name of the source file from which the record was ingested.
-          - name: line_id
-            description: Identifier of a line that serves this stop.
-          - name: pattern_id
-            description: Identifier of a pattern that serves this stop.
-          - name: route_id
-            description: Identifier of a route that serves this stop.
-          - name: facility_id
-            description: Identifier of a facility associated with the stop.
+          - name: partition_date
+            description: Represents the extraction date of the data for partitioning and audit purposes.
+          - name: ingested_at
+            description: Timestamp when the record was ingested into staging.

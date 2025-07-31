@@ -1,3 +1,5 @@
+WITH latest_partition AS {{ max_partition_date('carris_transformations','staging_stops_converted') }}
+
 SELECT
   stop_id,
   stop_code,
@@ -75,13 +77,15 @@ SELECT
   bike_sharing,
   bike_parking,
   car_parking,
-  line_id,
-  pattern_id,
-  route_id,
-  REPLACE(REPLACE(facility_id, 'NaN', 'N/A'), 'NA', 'N/A') AS facility_id,
+  line_ids,
+  pattern_ids,
+  route_ids,
+  facilities,
   stop_url,
   operational_status,
   _endpoint,
   _source_file,
+  s.partition_date,
   ingested_at
-FROM {{ source('carris_transformations', 'staging_stops_exploded') }}
+FROM {{ source('carris_transformations', 'staging_stops_converted') }} s
+INNER JOIN latest_partition lp ON s.partition_date = lp.partition_date
