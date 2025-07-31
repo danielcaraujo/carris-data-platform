@@ -25,7 +25,7 @@ models:
         data_tests:
           - not_null
       - name: partition_date
-        description: String with the partition date, used for partitioning the table.
+        description: Partitioning field representing the data extraction date.
         data_type: date
         data_tests:
           - not_null
@@ -68,7 +68,7 @@ models:
         data_tests:
           - not_null
       - name: partition_date
-        description: Partition date, used for partitioning the table.
+        description: Partitioning field representing the data extraction date.
         data_type: date
         data_tests:
           - not_null
@@ -293,7 +293,7 @@ models:
         data_tests:
           - not_null
       - name: partition_date
-        description: Partition date, used for partitioning the table.
+        description: Partitioning field representing the data extraction date.
         data_type: date
         data_tests:
           - not_null
@@ -352,7 +352,7 @@ models:
         data_tests:
           - not_null
       - name: partition_date
-        description: Partition date, used for partitioning the table.
+        description: Partitioning field representing the data extraction date.
         data_type: date
         data_tests:
           - not_null
@@ -443,7 +443,7 @@ models:
         description: Name of the source file from which the record was ingested.
         data_type: string
       - name: partition_date
-        description: Partition date for the table.
+        description: Partitioning field representing the data extraction date.
         data_type: date
         data_tests:
           - not_null
@@ -715,7 +715,7 @@ models:
         data_tests:
           - not_null
       - name: partition_date
-        description: Partition date for the table.
+        description: Partitioning field representing the data extraction date.
         data_type: date
         data_tests:
           - not_null
