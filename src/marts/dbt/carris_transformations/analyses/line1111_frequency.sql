@@ -1,3 +1,4 @@
+/*Quantas vezes uma dada linha (line_id = '1111', de exemplo) passa numa paragem?*/
 SELECT 
     stop_id,
     stop_name,

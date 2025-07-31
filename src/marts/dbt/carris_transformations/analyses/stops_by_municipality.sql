@@ -1,3 +1,4 @@
+/*Quantas paragens existem em cada município?*/
 WITH stops_by_municipality AS (
     SELECT 
         municipality_id,

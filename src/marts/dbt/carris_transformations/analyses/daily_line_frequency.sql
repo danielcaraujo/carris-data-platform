@@ -1,3 +1,4 @@
+/*Quantas vezes uma dada linha passa numa paragem?*/
 WITH daily_line_frequency AS (
     SELECT 
         stop_id,

@@ -3,7 +3,7 @@
     CASE
         WHEN {{ day_type_column }} = 1 
         {% if exception_type_column %}
-            AND {{ exception_type_column }} = 0
+            AND {{ exception_type_column }} = 1
         {% endif %}
         {% if holiday_column %}
             AND {{ holiday_column }} = 0

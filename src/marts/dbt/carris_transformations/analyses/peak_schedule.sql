@@ -1,3 +1,4 @@
+/*Quantas viagens estão agendadas durante horas de peak vs off-peak?*/
 SELECT 
     is_peak,
     COUNT(*) AS trip_count,

@@ -1,3 +1,4 @@
+/*Quantas paragens existem em cada região?*/
 WITH stops_by_region AS (
     SELECT 
         region_id,
