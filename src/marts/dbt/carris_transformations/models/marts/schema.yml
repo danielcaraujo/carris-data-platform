@@ -286,3 +286,114 @@ models:
         data_type: timestamp
         data_tests:
           - not_null
+  - name: dim_trip
+    description: Dimension table for trips, including trip identifiers, route, service, and shape information.
+    columns:
+      - name: trip_key
+        description: Surrogate key for the trip.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: trip_id
+        description: Unique identifier for the trip from the source system.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: direction
+        description: Indicates the direction of travel for the trip (usually 0 or 1).
+        data_type: int64
+        data_tests:
+          - not_null
+      - name: route_id
+        description: Identifier for the route associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Identifier for the service/calendar associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: trip_headsign
+        description: Text shown to passengers to indicate the destination of the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: pattern_id
+        description: Identifier for the pattern associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: shape_id
+        description: Identifier for the shape associated with the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
+        data_type: timestamp
+        data_tests:
+          - not_null
+  - name: dim_line
+    description: Dimension table for lines and their associated routes. Each row represents a unique combination of line and route.
+    columns:
+      - name: route_key
+        description: Surrogate key for the route.
+        data_type: string
+        data_tests:
+          - unique
+          - not_null
+      - name: route_id
+        description: Unique identifier for the route associated with the line.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: route_long_name
+        description: Full name of the route.
+        data_type: string
+      - name: route_short_name
+        description: Short code or abbreviation for the route.
+        data_type: string
+      - name: route_type
+        description: Numeric code indicating the type of route.
+        data_type: int64
+      - name: route_color
+        description: Hexadecimal color code for the route.
+        data_type: string
+      - name: route_text_color
+        description: Hexadecimal color code for the text on the route.
+        data_type: string
+      - name: line_id
+        description: Unique identifier for the line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: line_long_name
+        description: Full name of the line.
+        data_type: string
+      - name: line_short_name
+        description: Short code or abbreviation for the line.
+        data_type: string
+      - name: line_type
+        description: Numeric code indicating the type of line.
+        data_type: float64
+      - name: agency_id
+        description: Identifier for the agency responsible for the line.
+        data_type: string
+      - name: tts_name
+        description: Text-to-speech name for the line.
+        data_type: string
+      - name: circular
+        description: Indicates if the line is circular (1 for yes, 0 for no).
+        data_type: int64
+      - name: school
+        description: Indicates if the line serves a school or the distance to a school.
+        data_type: float64
+      - name: ingested_at
+        description: Timestamp when the record was loaded into the mart layer.
+        data_type: timestamp
+        data_tests:
+          - not_null

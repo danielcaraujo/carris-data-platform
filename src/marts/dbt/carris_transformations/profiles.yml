@@ -1,5 +1,5 @@
 carris_transformations:
-  target: "{{ env_var('TARGET') }}"
+  target: dev
   outputs:
     prod:
       dataset: applied_project_mart_grupo_1
