@@ -1,0 +1,58 @@
+version: 1
+
+snapshots:
+  - name: dim_stop_snapshot
+    description: >
+      Snapshot of stops dimension to track changes in stop attributes over time.
+      Captures infrastructure changes, accessibility updates, and location modifications.
+    columns:
+      - name: stop_id
+        description: Unique identifier for the stop
+        data_tests:
+          - not_null
+      - name: stop_name
+        description: Name of the stop
+      - name: near_school
+        description: Flag indicating if the stop is near a school
+      - name: dbt_scd_id
+        description: Unique identifier for each snapshot record
+      - name: dbt_valid_from
+        description: Timestamp when this version became valid
+      - name: dbt_valid_to
+        description: Timestamp when this version became invalid (null for current records)
+
+  - name: dim_line_snapshot
+    description: >
+      Snapshot of lines/routes dimension to track changes in service definitions over time.
+      Captures route modifications, service area changes, and branding updates.
+    columns:
+      - name: route_id
+        description: Unique identifier for the route
+        data_tests:
+          - not_null
+      - name: line_id
+        description: Associated line identifier
+      - name: circular
+        description: Flag indicating if the route is circular
+      - name: school
+        description: School service indicator
+
+  - name: dim_trip_snapshot
+    description: >
+      Snapshot of trips dimension to track changes in trip attributes over time.
+      Captures schedule changes, service type updates, and trip modifications.
+    columns:
+      - name: trip_id
+        description: Unique identifier for the trip
+        data_tests:
+          - not_null
+      - name: route_id
+        description: Identifier for the associated route
+      - name: service_type
+        description: Type of service provided by the trip (e.g., regular, express)
+      - name: dbt_scd_id
+        description: Unique identifier for each snapshot record
+      - name: dbt_valid_from
+        description: Timestamp when this version became valid
+      - name: dbt_valid_to
+        description: Timestamp when this version became invalid (null for current records)
