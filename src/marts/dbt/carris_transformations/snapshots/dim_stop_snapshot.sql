@@ -1,11 +1,20 @@
-{% snapshot dim_stop_snapshot %}
+{% snapshot snapshot_dim_stop %}
 
 {{
     config(
       target_schema='snapshots',
       unique_key='stop_id',
-      strategy='timestamp',
-      updated_at='ingested_at',
+      strategy='check',
+      check_cols=[
+        'stop_name',
+        'stop_latitude',
+        'stop_longitude',
+        'municipality_id',
+        'municipality_name',
+        'region_id',
+        'region_name',
+        'near_school'
+      ]
     )
 }}
 
