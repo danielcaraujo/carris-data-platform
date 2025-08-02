@@ -1,11 +1,18 @@
-{% snapshot dim_trip_snapshot %}
+{% snapshot snapshot_dim_trip %}
 
 {{
     config(
       target_schema='snapshots',
       unique_key='trip_id',
-      strategy='timestamp',
-      updated_at='ingested_at',
+      strategy='check',
+      check_cols=[
+        'direction',
+        'route_id',
+        'service_id',
+        'trip_headsign',
+        'pattern_id',
+        'shape_id'
+      ]
     )
 }}
 
